@@ -1,0 +1,37 @@
+package messages;
+
+message GetRequest {
+    required string key = 1;
+}
+
+message GetResponse {
+    required string key = 1;
+    optional string value = 2;
+}
+
+message PutRequest {
+    required string key = 1;
+    required string value = 2;
+}
+
+message PutResponse {
+    required string key = 1;
+    required bool success = 2;
+}
+
+enum Type {
+    GET = 1;
+    PUT = 2;
+};
+ 
+message ClientRequest {
+    required Type type = 1;
+    optional GetRequest get = 2;
+    optional PutRequest put = 3;
+}
+
+message ClientResponse {
+    required Type type = 1;
+    optional GetResponse get = 2;
+    optional PutResponse put = 3;
+}

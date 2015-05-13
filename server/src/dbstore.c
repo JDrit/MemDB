@@ -117,10 +117,10 @@ void insert_value(DBStore* store, char* key, int length, void* data) {
 }
 
 DataValue* get_value(DBStore* store, char* key) {
-    DataValue* value = malloc(sizeof(DataValue));
     IndexValue* index = g_hash_table_lookup(store->index, key);
     if (index == NULL)
         return NULL;
+    DataValue* value = malloc(sizeof(DataValue));
     value->length = index->length;
     value->data = malloc(value->length);
     printf("using offset: %d\n", index->offset);
