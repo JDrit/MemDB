@@ -3,29 +3,28 @@
 #define handle_error(msg) \
     do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
-int dataFd;
-
 DBStore* init_dbstore(char* indexFilename, char* dataFilename) {
     DBStore* store = malloc(sizeof(DBStore));
-    store->indexFilename = indexFilename;
-    store->dataFilename = dataFilename;
     store->index = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify)free_key, (GDestroyNotify)free_value);
 
-    store->nextSpot = read_index(store);
+    store->nextSpot = read_index(store, indexFilename);
 
     struct stat sb;
-    dataFd = open(store->dataFilename, O_RDWR | O_CREAT , 0644);
-    if (dataFd == -1)
+    store->dataFd = open(dataFilename, O_RDWR | O_CREAT , 0744);
+    store->indexFd = open(indexFilename, O_RDWR | O_CREAT | O_APPEND, 0744);
+    if (store->dataFd == -1)
         handle_error("data open");
-    if (fstat(dataFd, &sb) == -1)
+    if (fstat(store->dataFd, &sb) == -1)
         handle_error("data fstat");
     store->dataCapacity = sb.st_size;
-    printf("current capacity: %d\n", store->dataCapacity);
     if (store->dataCapacity == 0) { // increases when file is empty
-        ftruncate(open(store->dataFilename, O_RDWR), 1);
+        ftruncate(store->dataFd, 1);
         store->dataCapacity = 1;
     }
-    store->data = mmap(NULL, store->dataCapacity, PROT_WRITE | PROT_READ, MAP_PRIVATE, dataFd, 0);
+    off_t pa_offset = 0 & ~(sysconf(_SC_PAGE_SIZE) - 1);
+    store->dataCapacity -= pa_offset;
+    store->data = mmap(NULL, store->dataCapacity, PROT_WRITE | PROT_READ,
+            MAP_SHARED, store->dataFd, pa_offset);
     if (store->data == MAP_FAILED)
         handle_error("data map");
     return store;
@@ -40,14 +39,29 @@ void destroy_dbstore(DBStore* store) {
         }
         free(store);
     }
-    fsync(dataFd);
-    close(dataFd);
+    fsync(store->dataFd);
+    close(store->dataFd);
+}
+
+void write_index_log(DBStore* store, index_log_entry type, char* key, IndexValue* value) {
+    // each entry is (type) (index offset) (index length) (key length) key
+    char* buf = malloc(sizeof(type) + sizeof(unsigned int) * 2 + sizeof(int) + strlen(key));
+    switch (type) {
+        case ADD:
+            sprintf(buf, "%d%u%u%zd%s", type, value->offset, value->length, strlen(key), key);
+            write(store->indexFd, buf, strlen(buf));
+            fsync(store->indexFd);
+        case DELETE:
+            break;
+        default:
+            printf("unsupported log entry type\n");
+    }
 }
 
 void write_index(DBStore* store) {
     GHashTableIter iter;
     gpointer key, value;
-    FILE* indexFile = fopen(store->indexFilename, "w");
+    FILE* indexFile = fdopen(store->indexFd, "r");
     g_hash_table_iter_init(&iter, store->index);
     while (g_hash_table_iter_next(&iter, &key, &value)) {
         char* keyName = key;
@@ -57,8 +71,8 @@ void write_index(DBStore* store) {
     fclose(indexFile);
 }
 
-int read_index(DBStore* store) {
-    FILE* indexFile = fopen(store->indexFilename, "r");
+int read_index(DBStore* store, char* indexFilename) {
+    FILE* indexFile = fopen(indexFilename, "r");
     char line[256];
     int next = 0;
     if (indexFile != NULL) {
@@ -112,7 +126,7 @@ void insert_value(DBStore* store, char* key, int length, void* data) {
     if (msync(store->data, store->dataCapacity, MS_SYNC) == -1) {
         handle_error("msync");
     }
-    write(dataFd, store->data, store->dataCapacity);
+    write_index_log(store, ADD, key, dataKey);
     store->nextSpot += length;
 }
 
@@ -147,7 +161,7 @@ void grow_dbstore(DBStore* store, int length) {
         newsize += length;
     store->dataCapacity = newsize;
     printf("growing to size: %d\n", newsize);
-    if (ftruncate(dataFd, newsize) == -1)
+    if (ftruncate(store->dataFd, newsize) == -1)
         perror("ftruncate");
     store->data = mremap(store->data, store->dataCapacity, newsize, MREMAP_MAYMOVE);
     if (store->data == MAP_FAILED)

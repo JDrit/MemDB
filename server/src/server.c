@@ -57,17 +57,18 @@ int main (int argc, char* argv[]) {
             free(value->data);
             free(value);
         }
-        write_index(store);
+        //write_index(store);
         destroy_dbstore(store);
+        return 0;
     } else if (argc ==  3) { // insert
         char* data = argv[2];
         insert_value(store, key, strlen(data), data);
         DataValue* value = get_value(store, key);
         printf("value=%.*s\n", value->length, value->data);
         free_data_value(value);
-        write_index(store);
+        //write_index(store);
         destroy_dbstore(store);
-
+        return 0;
     }
 
 
@@ -131,7 +132,7 @@ int main (int argc, char* argv[]) {
         close(connfd);
     }
 
-    write_index(store);
+    //write_index(store);
     destroy_dbstore(store);
     return 0;
 }

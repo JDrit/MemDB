@@ -18,8 +18,8 @@ typedef struct {
     char* data;
     int nextSpot;
     int dataCapacity;
-    char* indexFilename;
-    char* dataFilename;
+    int indexFd;
+    int dataFd;
 } DBStore;
 
 typedef struct {
@@ -31,6 +31,11 @@ typedef struct {
     unsigned int length;
     char* data;
 } DataValue;
+
+typedef enum {
+    ADD,
+    DELETE
+} index_log_entry;
 
 void free_data_value(DataValue* value);
 
@@ -46,13 +51,13 @@ void insert_value(DBStore* dbstore, char* key, int length, void* data);
 
 bool delete_value(DBStore* dbstore, char* key);
 
-void write_index(DBStore* dbstore);
+void write_index_log(DBStore* dbstore, index_log_entry type, char* key, IndexValue* value);
 
 /**
  * Reads the index from the file and loads in into memory.
  * Returns the current next spot for data
  */
-int read_index(DBStore* dbstore);
+int read_index(DBStore* dbstore, char* indexFilename);
 
 /**
  * Called by the hash map to free the memory used as the key
