@@ -22,7 +22,7 @@
 void process_get(Messages__GetResponse *response,
                  Messages__GetRequest *request,
                  DBStore *store) {
-    DataValue* value = get_value(store, request->key);
+    DataValue* value = dbstore_get(store, request->key);
     response->key = malloc(strlen(request->key));
     strcpy(response->key, request->key);
     printf("get key: %s = ", response->key);
@@ -30,7 +30,7 @@ void process_get(Messages__GetResponse *response,
         response->value = malloc(value->length);
         strncpy(response->value, value->data, value->length);
         printf("%.*s\n", value->length, value->data);
-        free_data_value(value);
+        data_value_free(value);
     } else {
         printf("NOT EXISTS\n");
     }
@@ -39,35 +39,33 @@ void process_get(Messages__GetResponse *response,
 void process_put(Messages__PutResponse *response,
                  Messages__PutRequest *request,
                  DBStore *store) {
-    insert_value(store, request->key, strlen(request->value), request->value);
+    dbstore_insert(store, request->key, strlen(request->value), request->value);
     response->key = malloc(strlen(request->key));
     strcpy(response->key, request->key);
     response->success = true;
 }
 
 int main (int argc, char* argv[]) {
-    DBStore* store = init_dbstore("test.ind", "test.dat");
+    DBStore* store = dbstore_init("test.ind", "test.dat");
 
     char* key = argv[1];
     if (argc == 2) { // lookup
         printf("key lookup:\n");
-        DataValue* value = get_value(store, key);
+        DataValue* value = dbstore_get(store, key);
         if (value != NULL) {
             printf("value=%.*s\n", value->length, value->data);
-            free(value->data);
-            free(value);
+            data_value_free(value);
         }
         //write_index(store);
-        destroy_dbstore(store);
+        dbstore_destroy(store);
         return 0;
     } else if (argc ==  3) { // insert
         char* data = argv[2];
-        insert_value(store, key, strlen(data), data);
-        DataValue* value = get_value(store, key);
+        dbstore_insert(store, key, strlen(data), data);
+        DataValue* value = dbstore_get(store, key);
         printf("value=%.*s\n", value->length, value->data);
-        free_data_value(value);
-        //write_index(store);
-        destroy_dbstore(store);
+        data_value_free(value);
+        dbstore_destroy(store);
         return 0;
     }
 
@@ -132,7 +130,6 @@ int main (int argc, char* argv[]) {
         close(connfd);
     }
 
-    //write_index(store);
-    destroy_dbstore(store);
+    dbstore_destroy(store);
     return 0;
 }

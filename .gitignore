@@ -35,3 +35,6 @@
 # custom files
 *.dat
 *.ind
+
+server
+client

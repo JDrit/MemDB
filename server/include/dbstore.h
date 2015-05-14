@@ -13,66 +13,39 @@
 #include <sys/mman.h>
 #include <string.h>
 
+#include "dbindex.h"
+
 typedef struct {
-    GHashTable* index;
+    DBIndex* index;
     char* data;
     int nextSpot;
     int dataCapacity;
-    int indexFd;
     int dataFd;
 } DBStore;
-
-typedef struct {
-    unsigned int offset;
-    unsigned int length;
-} IndexValue;
 
 typedef struct {
     unsigned int length;
     char* data;
 } DataValue;
 
-typedef enum {
-    ADD,
-    DELETE
-} index_log_entry;
+DBStore* dbstore_init(char* indexFilename, char* dataFilename);
 
-void free_data_value(DataValue* value);
+void dbstore_destroy(DBStore* dbstore);
 
-DBStore* init_dbstore(char* indexFilename, char* dataFilename);
+bool dbstore_contains(DBStore* dbstore, char* key);
 
-void destroy_dbstore(DBStore* dbstore);
+DataValue* dbstore_get(DBStore* dbstore, char* key);
 
-bool does_exist(DBStore* dbstore, char* key);
-
-DataValue* get_value(DBStore* dbstore, char* key);
-
-void insert_value(DBStore* dbstore, char* key, int length, void* data);
+void dbstore_insert(DBStore* dbstore, char* key, int length, void* data);
 
 bool delete_value(DBStore* dbstore, char* key);
-
-void write_index_log(DBStore* dbstore, index_log_entry type, char* key, IndexValue* value);
-
-/**
- * Reads the index from the file and loads in into memory.
- * Returns the current next spot for data
- */
-int read_index(DBStore* dbstore, char* indexFilename);
-
-/**
- * Called by the hash map to free the memory used as the key
- */
-void free_key(char* key);
-
-/**
- * Called by the hash map to free the memory used for the value
- */
-void free_value(IndexValue* value);
 
 /**
  * Grows the data store so that it will have at least length free
  * space. Normally it will double its size every call
  */
-void grow_dbstore(DBStore* store, int length);
+void dbstore_grow(DBStore* store, int length);
+
+void data_value_free(DataValue* value);
 
 #endif
