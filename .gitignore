@@ -36,5 +36,5 @@
 *.dat
 *.ind
 
-server
-client
+server/server
+client/client
