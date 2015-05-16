@@ -3,6 +3,8 @@
 #define handle_error(msg) \
     do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
+static void dbstore_grow(DBStore* store, int length);
+
 DBStore* dbstore_init(char* indexFilename, char* dataFilename) {
     DBStore* store = malloc(sizeof(DBStore));
     store->index = index_init(indexFilename);
@@ -57,9 +59,8 @@ void dbstore_insert(DBStore* store, char* key, int length, void* data) {
 }
 
 DataValue* dbstore_get(DBStore* store, char* key) {
-    IndexValue* index = malloc(sizeof(IndexValue));
-    bool result = index_get(store->index, key, index);
-    if (result == false) {
+    IndexValue* index = index_get(store->index, key);
+    if (index == NULL) {
         return NULL;
     }
     DataValue* value = malloc(sizeof(DataValue));
@@ -70,7 +71,11 @@ DataValue* dbstore_get(DBStore* store, char* key) {
     return value;
 }
 
-void dbstore_grow(DBStore* store, int length) {
+/**
+ * Grows the data store so that it will have at least length free
+ * space. Normally it will double its size every call
+ */
+static void dbstore_grow(DBStore* store, int length) {
     int newsize = store->dataCapacity * 2;
     if (newsize - store->nextSpot < length)
         newsize += length;

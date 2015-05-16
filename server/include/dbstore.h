@@ -3,13 +3,13 @@
 
 #define _GNU_SOURCE 1
 
-#include <glib.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/mman.h>
 #include <string.h>
 
@@ -39,12 +39,6 @@ DataValue* dbstore_get(DBStore* dbstore, char* key);
 void dbstore_insert(DBStore* dbstore, char* key, int length, void* data);
 
 bool delete_value(DBStore* dbstore, char* key);
-
-/**
- * Grows the data store so that it will have at least length free
- * space. Normally it will double its size every call
- */
-void dbstore_grow(DBStore* store, int length);
 
 void data_value_free(DataValue* value);
 
