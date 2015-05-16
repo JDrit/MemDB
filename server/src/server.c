@@ -12,6 +12,7 @@
 #include <fcntl.h>
 
 #include "dbstore.h"
+#include "logging.h"
 #include "messages.pb-c.h"
 
 #define BACKLOG 10
@@ -25,14 +26,14 @@ void process_get(Messages__GetResponse *response,
     DataValue* value = dbstore_get(store, request->key);
     response->key = malloc(strlen(request->key));
     strcpy(response->key, request->key);
-    printf("get key: %s = ", response->key);
+    debug("get key: %s = ", response->key);
     if (value != NULL) {
         response->value = malloc(value->length);
         strncpy(response->value, value->data, value->length);
-        printf("%.*s\n", value->length, value->data);
+        debug("%.*s\n", value->length, value->data);
         data_value_free(value);
     } else {
-        printf("NOT EXISTS\n");
+        debug("NOT EXISTS\n");
     }
 }
 
@@ -50,10 +51,10 @@ int main (int argc, char* argv[]) {
 
     char* key = argv[1];
     if (argc == 2) { // lookup
-        printf("key lookup:\n");
+        debug("key lookup:\n");
         DataValue* value = dbstore_get(store, key);
         if (value != NULL) {
-            printf("value=%.*s\n", value->length, value->data);
+            debug("value=%.*s\n", value->length, value->data);
             data_value_free(value);
         }
         //write_index(store);
@@ -63,7 +64,7 @@ int main (int argc, char* argv[]) {
         char* data = argv[2];
         dbstore_insert(store, key, strlen(data), data);
         DataValue* value = dbstore_get(store, key);
-        printf("value=%.*s\n", value->length, value->data);
+        debug("value=%.*s\n", value->length, value->data);
         data_value_free(value);
         dbstore_destroy(store);
         return 0;
@@ -88,11 +89,8 @@ int main (int argc, char* argv[]) {
 
     bind(listenfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
 
-    if (listen(listenfd, BACKLOG) == -1) {
-        printf("Failed to listen\n");
-        return -1;
-    }
-    printf("starting listening...\n");
+    check(listen(listenfd, BACKLOG) == -1, "failed to lisen to port");
+    log_info("starting listening...");
     while (1) {
         connfd = accept(listenfd, (struct sockaddr*) NULL, NULL);
         int n = read(connfd, recvBuff, sizeof(recvBuff) - 1);
@@ -104,28 +102,28 @@ int main (int argc, char* argv[]) {
         if (request != NULL) {
             switch (request->type) {
                 case MESSAGES__TYPE__GET:
-                    printf("get request\n");
+                    debug("get request\n");
                     Messages__GetResponse getResponse = MESSAGES__GET_RESPONSE__INIT;
                     process_get(&getResponse, request->get, store);
                     response.type = MESSAGES__TYPE__GET;
                     response.get = &getResponse;
                     break;
                 case MESSAGES__TYPE__PUT:
-                    printf("put request\n");
+                    debug("put request\n");
                     Messages__PutResponse putResponse = MESSAGES__PUT_RESPONSE__INIT;
                     process_put(&putResponse, request->put, store);
                     response.type = MESSAGES__TYPE__PUT;
                     response.put = &putResponse;
                     break;
                 default:
-                    printf("invalid type\n");
+                    log_warn("invalid type\n");
             }
             unsigned len = messages__client_response__get_packed_size(&response);
             void *buf = malloc(len);
             messages__client_response__pack(&response, buf);
             write(connfd, buf, len);
         } else {
-            printf("failed to parse client request\n");
+            log_warn("failed to parse client request\n");
         }
         close(connfd);
     }
