@@ -18,8 +18,8 @@
 typedef struct {
     DBIndex* index;
     char* data;
-    long long nextSpot;
-    long long dataCapacity;
+    unsigned long long nextSpot;
+    unsigned long long dataCapacity;
     int dataFd;
 } DBStore;
 

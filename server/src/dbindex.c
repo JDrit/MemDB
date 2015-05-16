@@ -7,13 +7,13 @@
 
 static void index_resize(DBIndex* index);
 
-static void read_index(DBIndex* index);
+static unsigned long long determine_filled(DBIndex* index);
 
-static long long hash_index(DBIndex* index, char* key);
+static unsigned long long hash_index(DBIndex* index, char* key);
 
 static void index_create(DBIndex* index);
 
-static long long find_slot(DBIndex* index, char* key);
+static unsigned long long find_slot(DBIndex* index, char* key);
 
 static bool is_occupied(IndexValue* value);
 
@@ -40,7 +40,7 @@ DBIndex* index_init(char* indexFilename) {
                 MAP_SHARED, index->fd, pa_offset);
         if (index->index == MAP_FAILED)
             handle_error("index mmap");
-        index->numFilled = 0; //TODO
+        index->numFilled = determine_filled(index);
         debug("finished restoring index, capacity: %lld, numFilled: %lld\n", index->capacity, index->numFilled);
     }
 
@@ -59,10 +59,10 @@ void index_destroy(DBIndex* index) {
 
 void index_insert(DBIndex* index, char* key, IndexValue* value) {
     debug("inserting %s\n", key);
-    long long i = find_slot(index, key);
+    unsigned long long i = find_slot(index, key);
     IndexValue* curVal = malloc(sizeof(IndexValue));
     check_mem(curVal);
-    memcpy(index->index + i * sizeof(IndexValue), curVal, sizeof(IndexValue));
+    memcpy(curVal, index->index + i * sizeof(IndexValue), sizeof(IndexValue));
     if (is_occupied(curVal)) { // updates the existing key with a new value
         debug("updating current value");
         memcpy(index->index + i * sizeof(IndexValue), value, sizeof(IndexValue));
@@ -81,7 +81,30 @@ void index_insert(DBIndex* index, char* key, IndexValue* value) {
 }
 
 bool index_remove(DBIndex* index, char* key) {
-
+    debug("removing %s", key);
+    unsigned long long i = find_slot(index, key);
+    IndexValue* curVal = malloc(sizeof(IndexValue));
+    check_mem(curVal);
+    memcpy(curVal, index->index + i * sizeof(IndexValue), sizeof(IndexValue));
+    if (!is_occupied(curVal)) {
+        free(curVal);
+        return false;
+    }
+    unsigned long long j = i;
+    while (true) {
+        curVal->length = 0;
+        curVal->offset = 0;
+r2:
+        j = (j + 1) % index->capacity;
+        memcpy(curVal, index->index + j * sizeof(IndexValue), sizeof(IndexValue));
+        if (!is_occupied(curVal))
+            return true;
+        unsigned long long k = hash_index(index, curVal->key);
+        if ((i <= j) ? ((i < k) && (k <= j)) : ((i < k) || (k <= j)))
+            goto r2;
+        memcpy(index->index + i * sizeof(IndexValue), index->index + j * sizeof(IndexValue), sizeof(IndexValue));
+        i = j;
+    }
 }
 
 bool index_contains(DBIndex* index, char* key) {
@@ -97,11 +120,11 @@ bool index_contains(DBIndex* index, char* key) {
 }
 
 IndexValue* index_get(DBIndex* index, char* key) {
-    debug("Getting index for %s", key);
-    long long i = find_slot(index, key);
+    debug("getting index for %s", key);
+    unsigned long long i = find_slot(index, key);
     IndexValue* value = malloc(sizeof(IndexValue));
     check_mem(value);
-    memcpy(index->index + i * sizeof(IndexValue), value, sizeof(IndexValue));
+    memcpy(value, index->index + i * sizeof(IndexValue), sizeof(IndexValue));
     if (is_occupied(value) == true) {
         return value;
     } else {
@@ -113,21 +136,21 @@ IndexValue* index_get(DBIndex* index, char* key) {
 /**
  * Generates the index to be used in the mmaped data
  */
-static long long hash_index(DBIndex* index, char* key) {
-    long long hash = XXH64(key, sizeof(key), index->seed);
+static unsigned long long hash_index(DBIndex* index, char* key) {
+    unsigned long long hash = XXH64(key, sizeof(key), index->seed);
     return hash % (index->capacity);
 }
 
 /**
  * Finds the slot in the index where key is stored
  */
-static long long find_slot(DBIndex* index, char* key) {
-    long long i = hash_index(index, key);
+static unsigned long long find_slot(DBIndex* index, char* key) {
+    unsigned long long i = hash_index(index, key);
     IndexValue value;
-    memcpy(index->index + i, &value, sizeof(IndexValue));
+    memcpy(&value, index->index + i, sizeof(IndexValue));
     while (value.offset > 0 && value.length > 0 && strncmp(key, value.key, strlen(key))) {
         i = (i + 1) % index->capacity;
-        memcpy(index->index + i, &value, sizeof(IndexValue));
+        memcpy(&value, index->index + i, sizeof(IndexValue));
     }
     debug("Slot for %s is %lld", key, i);
     return i;
@@ -163,6 +186,17 @@ static void index_create(DBIndex* index) {
 static void index_resize(DBIndex* index) {
     log_info("increasing index size");
 
+}
+
+static unsigned long long determine_filled(DBIndex* index) {
+    unsigned long long count = 0L;
+    for (unsigned long long i = 0 ; i < index->capacity ; i++) {
+        IndexValue value;
+        memcpy(&value, index->index + i * sizeof(IndexValue), sizeof(IndexValue));
+        if (is_occupied(&value) == true)
+            count++;
+    }
+    return count;
 }
 
 /**

@@ -22,8 +22,8 @@ typedef struct {
     int fd;
     char* index;             // mmaped data
     unsigned long long seed; // seed used for hashing
-    long long capacity;      // the total number of elements possible to be stored
-    long long numFilled;     // current number of elements in the index
+    unsigned long long capacity;      // the total number of elements possible to be stored
+    unsigned long long numFilled;     // current number of elements in the index
 } DBIndex;
 
 typedef struct {

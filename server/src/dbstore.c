@@ -64,6 +64,7 @@ DataValue* dbstore_get(DBStore* store, char* key) {
     check_mem(value->data);
     printf("using offset: %d\n", index->offset);
     memcpy(value->data, store->data + index->offset, index->length);
+    free(index);
     return value;
 }
 
@@ -72,8 +73,8 @@ DataValue* dbstore_get(DBStore* store, char* key) {
  * space. Normally it will double its size every call
  */
 static void dbstore_grow(DBStore* store, int length) {
-    long long newsize = store->dataCapacity * 2;
-    if (newsize - store->nextSpot < length)
+    unsigned long long newsize = store->dataCapacity * 2;
+    if (newsize - store->nextSpot < (unsigned long long) length)
         newsize += length;
     debug("Growing to size %lld", newsize);
     store->dataCapacity = newsize;
