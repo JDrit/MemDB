@@ -1,3 +1,5 @@
+#define _GNU_SOURCE 1
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -24,16 +26,11 @@ void process_get(Messages__GetResponse *response,
                  Messages__GetRequest *request,
                  DBStore *store) {
     DataValue* value = dbstore_get(store, request->key);
-    response->key = malloc(strlen(request->key));
-    strcpy(response->key, request->key);
-    debug("get key: %s = ", response->key);
+    response->key = strdup(request->key);
     if (value != NULL) {
-        response->value = malloc(value->length);
-        strncpy(response->value, value->data, value->length);
-        debug("%.*s\n", value->length, value->data);
+        response->success = true;
+        response->value = strndup(value->data, value->length);
         data_value_free(value);
-    } else {
-        debug("NOT EXISTS\n");
     }
 }
 
@@ -41,8 +38,7 @@ void process_put(Messages__PutResponse *response,
                  Messages__PutRequest *request,
                  DBStore *store) {
     dbstore_insert(store, request->key, strlen(request->value), request->value);
-    response->key = malloc(strlen(request->key));
-    strcpy(response->key, request->key);
+    response->key = strdup(request->key);
     response->success = true;
 }
 
@@ -99,29 +95,47 @@ int main (int argc, char* argv[]) {
 
         Messages__ClientRequest *request = messages__client_request__unpack(NULL, n, recvBuff);
         Messages__ClientResponse response = MESSAGES__CLIENT_RESPONSE__INIT;
+        Messages__PutResponse putResponse = MESSAGES__PUT_RESPONSE__INIT;
+        Messages__GetResponse getResponse = MESSAGES__GET_RESPONSE__INIT;
+
         if (request != NULL) {
             switch (request->type) {
                 case MESSAGES__TYPE__GET:
-                    debug("get request\n");
-                    Messages__GetResponse getResponse = MESSAGES__GET_RESPONSE__INIT;
+                    debug("get request");
                     process_get(&getResponse, request->get, store);
                     response.type = MESSAGES__TYPE__GET;
                     response.get = &getResponse;
                     break;
                 case MESSAGES__TYPE__PUT:
-                    debug("put request\n");
-                    Messages__PutResponse putResponse = MESSAGES__PUT_RESPONSE__INIT;
+                    debug("put request");
                     process_put(&putResponse, request->put, store);
                     response.type = MESSAGES__TYPE__PUT;
                     response.put = &putResponse;
                     break;
                 default:
-                    log_warn("invalid type\n");
+                    log_warn("invalid type");
             }
+
             unsigned len = messages__client_response__get_packed_size(&response);
             void *buf = malloc(len);
             messages__client_response__pack(&response, buf);
             write(connfd, buf, len);
+
+            // frees up memory
+            free(buf);
+            switch(request->type) {
+                case MESSAGES__TYPE__GET:
+                    free(getResponse.key);
+                    free(getResponse.value);
+                    break;
+                case MESSAGES__TYPE__PUT:
+                    free(putResponse.key);
+                    break;
+                default:
+                    log_warn("invalid type");
+            }
+            messages__client_request__free_unpacked(request, NULL);
+
         } else {
             log_warn("failed to parse client request\n");
         }

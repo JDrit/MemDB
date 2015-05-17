@@ -6,7 +6,8 @@ message GetRequest {
 
 message GetResponse {
     required string key = 1;
-    optional string value = 2;
+    required bool success = 2;
+    optional string value = 3;
 }
 
 message PutRequest {

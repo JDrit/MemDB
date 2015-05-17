@@ -14,12 +14,13 @@
 #include <sys/mman.h>
 
 #define KEY_SIZE 15
-#define LOAD_FACTOR 0.8
-#define INITIAL_SIZE 1000
-#define INDEX_DEBUG 1
+#define LOAD_FACTOR 80
+#define INITIAL_SIZE 10
+#define TMP_FILE "tmp.ind"
 
 typedef struct {
     int fd;
+    char* filename;
     char* index;             // mmaped data
     unsigned long long seed; // seed used for hashing
     unsigned long long capacity;      // the total number of elements possible to be stored
@@ -54,9 +55,8 @@ void index_destroy(DBIndex* index);
  * Inserts the element into the index, overriding any previous value. If the
  * load factor reaches LOAD_FACTOR, then a resize will occur.
  */
-void index_insert(DBIndex* index, char* key, IndexValue* value);
+void index_insert(DBIndex* index, IndexValue* value);
 
-bool index_delete(DBIndex* index, char* key);
 
 /*
  * Checks to see if the index exists by calling the index_get function.

@@ -24,6 +24,7 @@ DBStore* dbstore_init(char* indexFilename, char* dataFilename) {
     store->data = mmap(NULL, store->dataCapacity, PROT_WRITE | PROT_READ,
             MAP_SHARED, store->dataFd, pa_offset);
     check(store->data == MAP_FAILED, "data mmap failed");
+    store->nextSpot = store->dataCapacity; // TODO
     return store;
 }
 
@@ -44,15 +45,16 @@ void dbstore_insert(DBStore* store, char* key, int length, void* data) {
     check_mem(dataKey);
     dataKey->length = length;
     dataKey->offset = store->nextSpot;
-    index_insert(store->index, key, dataKey);
+    strcpy(dataKey->key, key);
+    index_insert(store->index, dataKey);
 
     memcpy(store->data + store->nextSpot, data, length);
     check(msync(store->data, store->dataCapacity, MS_SYNC) == -1, "data msync");
     store->nextSpot += length;
+    free(dataKey);
 }
 
 DataValue* dbstore_get(DBStore* store, char* key) {
-    debug("getting data for %s", key);
     IndexValue* index = index_get(store->index, key);
     if (index == NULL) {
         return NULL;
@@ -62,8 +64,8 @@ DataValue* dbstore_get(DBStore* store, char* key) {
     value->length = index->length;
     value->data = malloc(value->length);
     check_mem(value->data);
-    printf("using offset: %d\n", index->offset);
     memcpy(value->data, store->data + index->offset, index->length);
+    debug("get %s = %.*s", key, value->length, value->data);
     free(index);
     return value;
 }
@@ -78,8 +80,7 @@ static void dbstore_grow(DBStore* store, int length) {
         newsize += length;
     debug("Growing to size %lld", newsize);
     store->dataCapacity = newsize;
-    if (ftruncate(store->dataFd, newsize) == -1)
-        perror("ftruncate");
+    check(ftruncate(store->dataFd, newsize) == -1, "store resize ftruncate");
     store->data = mremap(store->data, store->dataCapacity, newsize, MREMAP_MAYMOVE);
     check(store->data == MAP_FAILED, "data resize failed");
 }

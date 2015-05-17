@@ -47,11 +47,12 @@ struct  _Messages__GetResponse
 {
   ProtobufCMessage base;
   char *key;
+  protobuf_c_boolean success;
   char *value;
 };
 #define MESSAGES__GET_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&messages__get_response__descriptor) \
-    , NULL, NULL }
+    , NULL, 0, NULL }
 
 
 struct  _Messages__PutRequest

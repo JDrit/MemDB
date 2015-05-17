@@ -303,7 +303,7 @@ const ProtobufCMessageDescriptor messages__get_request__descriptor =
   (ProtobufCMessageInit) messages__get_request__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor messages__get_response__field_descriptors[2] =
+static const ProtobufCFieldDescriptor messages__get_response__field_descriptors[3] =
 {
   {
     "key",
@@ -318,8 +318,20 @@ static const ProtobufCFieldDescriptor messages__get_response__field_descriptors[
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "value",
+    "success",
     2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BOOL,
+    0,   /* quantifier_offset */
+    offsetof(Messages__GetResponse, success),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "value",
+    3,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_STRING,
     0,   /* quantifier_offset */
@@ -332,12 +344,13 @@ static const ProtobufCFieldDescriptor messages__get_response__field_descriptors[
 };
 static const unsigned messages__get_response__field_indices_by_name[] = {
   0,   /* field[0] = key */
-  1,   /* field[1] = value */
+  1,   /* field[1] = success */
+  2,   /* field[2] = value */
 };
 static const ProtobufCIntRange messages__get_response__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 2 }
+  { 0, 3 }
 };
 const ProtobufCMessageDescriptor messages__get_response__descriptor =
 {
@@ -347,7 +360,7 @@ const ProtobufCMessageDescriptor messages__get_response__descriptor =
   "Messages__GetResponse",
   "messages",
   sizeof(Messages__GetResponse),
-  2,
+  3,
   messages__get_response__field_descriptors,
   messages__get_response__field_indices_by_name,
   1,  messages__get_response__number_ranges,

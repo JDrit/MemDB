@@ -1,0 +1,9 @@
+./client 1 1
+./client 2 2
+./client 3 3
+./client 4 4
+./client 5 5
+./client 6 6
+./client 7 7
+./client 8 8
+./client 9 9
