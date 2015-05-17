@@ -7,3 +7,14 @@
 ./client 7 7
 ./client 8 8
 ./client 9 9
+./client 10 10
+./client 11 11
+./client 12 12
+./client 13 13
+./client 14 14
+./client 15 15
+./client 16 16
+./client 17 17
+./client 18 18
+./client 19 19
+./client 20 20

@@ -150,7 +150,6 @@ static unsigned long long find_slot(DBIndex* index, char* key) {
     memcpy(&value, index->index + i * sizeof(IndexValue), sizeof(IndexValue));
     while (is_occupied(&value) && strcmp(key, value.key) != 0) {
         i = (i + 1) % index->capacity;
-        //debug("hash collision for %s and %s", key, value.key);
         memcpy(&value, index->index + i * sizeof(IndexValue), sizeof(IndexValue));
     }
     debug("Slot for %s is %lld", key, i);
@@ -163,7 +162,7 @@ static unsigned long long find_slot(DBIndex* index, char* key) {
  * for the offset and length.
  */
 static void index_create(DBIndex* index, unsigned long long size) {
-    debug("creating index to size %d\n", INITIAL_SIZE);
+    debug("creating index to size %llu\n", size);
     check(ftruncate(index->fd, sizeof(IndexValue) * size) == -1, "index create ftruncate");
     index->capacity = size;
     index->numFilled = 0;
@@ -199,14 +198,14 @@ static DBIndex* index_resize(DBIndex* index) {
     }
     check(munmap(index->index, index->capacity * sizeof(IndexValue)) == -1, "index munmap");
     rename(TMP_FILE, index->filename);
-    debug("changing file from %s to %s", TMP_FILE, index->filename);
     index->fd = newIndex->fd;
     index->index = newIndex->index;
     index->index = newIndex->index;
     index->seed = newIndex->seed;
     index->capacity = newIndex->capacity;
     index->numFilled = newIndex->numFilled;
-    index_destroy(newIndex);
+    free(newIndex->filename);
+    free(newIndex);
     return newIndex;
 }
 

@@ -17,7 +17,7 @@
 int main (int argc, char* argv[]) {
     int sockfd = 0;
     int n = 0;
-    char recvBuff[1024];
+    uint8_t recvBuff[1024];
     char sendBuff[1024];
     struct sockaddr_in serv_addr;
     memset(recvBuff, '0', sizeof(recvBuff));
@@ -56,10 +56,21 @@ int main (int argc, char* argv[]) {
     void* buf = malloc(len);
     messages__client_request__pack(&request, buf);
     write(sockfd, buf, len);
-    while ((n = read(sockfd, recvBuff, sizeof(recvBuff) - 1)) > 0) {
+    n = read(sockfd, recvBuff, sizeof(recvBuff) - 1);
+    if (n > 0)
         recvBuff[n] = 0;
-        fputs(recvBuff, stdout);
-        printf("\n");
+    Messages__ClientResponse *response = messages__client_response__unpack(NULL, n, recvBuff);
+    if (response != NULL) {
+        switch(response->type) {
+            case MESSAGES__TYPE__GET:
+                printf("%s = %s\n", response->get->key, response->get->value);
+                break;
+            case MESSAGES__TYPE__PUT:
+                printf("put: %s\n", response->put->key);
+                break;
+            default:
+                printf("wrong type\n");
+        }
     }
     return 0;
 }
