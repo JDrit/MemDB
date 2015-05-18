@@ -12,7 +12,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
-
 #include "dbstore.h"
 #include "logging.h"
 #include "messages.pb-c.h"
@@ -20,7 +19,6 @@
 #define BACKLOG 10
 #define handle_error(msg) \
     do { perror(msg); exit(EXIT_FAILURE); } while (0)
-
 
 void process_get(Messages__GetResponse *response,
                  Messages__GetRequest *request,

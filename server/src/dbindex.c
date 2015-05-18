@@ -75,7 +75,6 @@ void index_insert(DBIndex* index, IndexValue* value) {
         index_resize(index);
         i = find_slot(index, value->key);
     }
-    debug("inserting to slot %lld", i);
     memcpy(index->index + i * sizeof(IndexValue), value, sizeof(IndexValue));
     check(msync(index->index, index->capacity * sizeof(IndexValue), MS_SYNC) == -1, "index insert msync");
     index->numFilled++;
@@ -152,7 +151,6 @@ static unsigned long long find_slot(DBIndex* index, char* key) {
         i = (i + 1) % index->capacity;
         memcpy(&value, index->index + i * sizeof(IndexValue), sizeof(IndexValue));
     }
-    debug("Slot for %s is %lld", key, i);
     return i;
 }
 

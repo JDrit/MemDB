@@ -20,19 +20,31 @@ message PutResponse {
     required bool success = 2;
 }
 
+message RemoveRequest {
+    required string key = 1;
+}
+
+message RemoveResponse {
+    required string key = 1;
+    required bool success = 2;
+}
+
 enum Type {
     GET = 1;
     PUT = 2;
+    REMOVE = 3;
 };
  
 message ClientRequest {
     required Type type = 1;
     optional GetRequest get = 2;
     optional PutRequest put = 3;
+    optional RemoveRequest remove = 4;
 }
 
 message ClientResponse {
     required Type type = 1;
     optional GetResponse get = 2;
     optional PutResponse put = 3;
+    optional RemoveResponse remove = 4;
 }

@@ -19,6 +19,8 @@ typedef struct _Messages__GetRequest Messages__GetRequest;
 typedef struct _Messages__GetResponse Messages__GetResponse;
 typedef struct _Messages__PutRequest Messages__PutRequest;
 typedef struct _Messages__PutResponse Messages__PutResponse;
+typedef struct _Messages__RemoveRequest Messages__RemoveRequest;
+typedef struct _Messages__RemoveResponse Messages__RemoveResponse;
 typedef struct _Messages__ClientRequest Messages__ClientRequest;
 typedef struct _Messages__ClientResponse Messages__ClientResponse;
 
@@ -27,7 +29,8 @@ typedef struct _Messages__ClientResponse Messages__ClientResponse;
 
 typedef enum _Messages__Type {
   MESSAGES__TYPE__GET = 1,
-  MESSAGES__TYPE__PUT = 2
+  MESSAGES__TYPE__PUT = 2,
+  MESSAGES__TYPE__REMOVE = 3
     PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(MESSAGES__TYPE)
 } Messages__Type;
 
@@ -77,16 +80,38 @@ struct  _Messages__PutResponse
     , NULL, 0 }
 
 
+struct  _Messages__RemoveRequest
+{
+  ProtobufCMessage base;
+  char *key;
+};
+#define MESSAGES__REMOVE_REQUEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__remove_request__descriptor) \
+    , NULL }
+
+
+struct  _Messages__RemoveResponse
+{
+  ProtobufCMessage base;
+  char *key;
+  protobuf_c_boolean success;
+};
+#define MESSAGES__REMOVE_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__remove_response__descriptor) \
+    , NULL, 0 }
+
+
 struct  _Messages__ClientRequest
 {
   ProtobufCMessage base;
   Messages__Type type;
   Messages__GetRequest *get;
   Messages__PutRequest *put;
+  Messages__RemoveRequest *remove;
 };
 #define MESSAGES__CLIENT_REQUEST__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&messages__client_request__descriptor) \
-    , 0, NULL, NULL }
+    , 0, NULL, NULL, NULL }
 
 
 struct  _Messages__ClientResponse
@@ -95,10 +120,11 @@ struct  _Messages__ClientResponse
   Messages__Type type;
   Messages__GetResponse *get;
   Messages__PutResponse *put;
+  Messages__RemoveResponse *remove;
 };
 #define MESSAGES__CLIENT_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&messages__client_response__descriptor) \
-    , 0, NULL, NULL }
+    , 0, NULL, NULL, NULL }
 
 
 /* Messages__GetRequest methods */
@@ -177,6 +203,44 @@ Messages__PutResponse *
 void   messages__put_response__free_unpacked
                      (Messages__PutResponse *message,
                       ProtobufCAllocator *allocator);
+/* Messages__RemoveRequest methods */
+void   messages__remove_request__init
+                     (Messages__RemoveRequest         *message);
+size_t messages__remove_request__get_packed_size
+                     (const Messages__RemoveRequest   *message);
+size_t messages__remove_request__pack
+                     (const Messages__RemoveRequest   *message,
+                      uint8_t             *out);
+size_t messages__remove_request__pack_to_buffer
+                     (const Messages__RemoveRequest   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__RemoveRequest *
+       messages__remove_request__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__remove_request__free_unpacked
+                     (Messages__RemoveRequest *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__RemoveResponse methods */
+void   messages__remove_response__init
+                     (Messages__RemoveResponse         *message);
+size_t messages__remove_response__get_packed_size
+                     (const Messages__RemoveResponse   *message);
+size_t messages__remove_response__pack
+                     (const Messages__RemoveResponse   *message,
+                      uint8_t             *out);
+size_t messages__remove_response__pack_to_buffer
+                     (const Messages__RemoveResponse   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__RemoveResponse *
+       messages__remove_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__remove_response__free_unpacked
+                     (Messages__RemoveResponse *message,
+                      ProtobufCAllocator *allocator);
 /* Messages__ClientRequest methods */
 void   messages__client_request__init
                      (Messages__ClientRequest         *message);
@@ -229,6 +293,12 @@ typedef void (*Messages__PutRequest_Closure)
 typedef void (*Messages__PutResponse_Closure)
                  (const Messages__PutResponse *message,
                   void *closure_data);
+typedef void (*Messages__RemoveRequest_Closure)
+                 (const Messages__RemoveRequest *message,
+                  void *closure_data);
+typedef void (*Messages__RemoveResponse_Closure)
+                 (const Messages__RemoveResponse *message,
+                  void *closure_data);
 typedef void (*Messages__ClientRequest_Closure)
                  (const Messages__ClientRequest *message,
                   void *closure_data);
@@ -246,6 +316,8 @@ extern const ProtobufCMessageDescriptor messages__get_request__descriptor;
 extern const ProtobufCMessageDescriptor messages__get_response__descriptor;
 extern const ProtobufCMessageDescriptor messages__put_request__descriptor;
 extern const ProtobufCMessageDescriptor messages__put_response__descriptor;
+extern const ProtobufCMessageDescriptor messages__remove_request__descriptor;
+extern const ProtobufCMessageDescriptor messages__remove_response__descriptor;
 extern const ProtobufCMessageDescriptor messages__client_request__descriptor;
 extern const ProtobufCMessageDescriptor messages__client_response__descriptor;
 

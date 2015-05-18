@@ -79,10 +79,10 @@ static void dbstore_grow(DBStore* store, int length) {
     if (newsize - store->nextSpot < (unsigned long long) length)
         newsize += length;
     debug("Growing to size %lld", newsize);
-    store->dataCapacity = newsize;
     check(ftruncate(store->dataFd, newsize) == -1, "store resize ftruncate");
     store->data = mremap(store->data, store->dataCapacity, newsize, MREMAP_MAYMOVE);
     check(store->data == MAP_FAILED, "data resize failed");
+    store->dataCapacity = newsize;
 }
 
 void data_value_free(DataValue* value) {

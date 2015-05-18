@@ -18,3 +18,22 @@
 ./client 18 18
 ./client 19 19
 ./client 20 20
+
+test () {
+    for i in `seq $1 $(($1 + 5000))`;
+    do
+        ./client $i "fuck this shit up the fuck" > /dev/null
+    done
+    echo $1
+}
+
+test 1 &
+test 5000 &
+test 10000 &
+test 15000 &
+test 20000 &
+test 25000 &
+test 30000 &
+test 35000 &
+test 40000 &
+read
