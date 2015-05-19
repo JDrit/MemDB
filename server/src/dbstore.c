@@ -36,6 +36,10 @@ void dbstore_destroy(DBStore* store) {
     free(store);
 }
 
+bool dbstore_remove(DBStore* store, char* key) {
+    return index_remove(store->index, key);
+}
+
 void dbstore_insert(DBStore* store, char* key, int length, void* data) {
     debug("inserting key %s", key);
     if (store->nextSpot + length > store->dataCapacity) {

@@ -32,6 +32,8 @@ DBStore* dbstore_init(char* indexFilename, char* dataFilename);
 
 void dbstore_destroy(DBStore* dbstore);
 
+bool dbstore_remove(DBStore* store, char* key);
+
 bool dbstore_contains(DBStore* dbstore, char* key);
 
 DataValue* dbstore_get(DBStore* dbstore, char* key);

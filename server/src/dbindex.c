@@ -91,19 +91,22 @@ bool index_remove(DBIndex* index, char* key) {
     while (true) {
         curVal.length = 0;
         curVal.offset = 0;
+        memcpy(index->index + i * sizeof(IndexValue), &curVal, sizeof(IndexValue));
 r2:
         j = (j + 1) % index->capacity;
         memcpy(&curVal, index->index + j * sizeof(IndexValue), sizeof(IndexValue));
-        if (!is_occupied(&curVal))
+        if (!is_occupied(&curVal)) {
+            check(msync(index->index, index->capacity * sizeof(IndexValue), MS_SYNC) == -1,
+                    "index remove msync");
+            index->numFilled--;
             return true;
+        }
         unsigned long long k = hash_index(index, curVal.key);
         if ((i <= j) ? ((i < k) && (k <= j)) : ((i < k) || (k <= j)))
             goto r2;
         memcpy(index->index + i * sizeof(IndexValue), index->index + j * sizeof(IndexValue), sizeof(IndexValue));
         i = j;
     }
-    check(msync(index->index, index->capacity * sizeof(IndexValue), MS_SYNC) == -1, "index remove msync");
-    index->numFilled--;
 }
 
 bool index_contains(DBIndex* index, char* key) {

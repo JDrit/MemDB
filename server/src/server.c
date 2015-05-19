@@ -1,24 +1,7 @@
-#define _GNU_SOURCE 1
+#include "server.h"
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include "dbstore.h"
-#include "logging.h"
-#include "messages.pb-c.h"
-
-#define BACKLOG 10
-#define handle_error(msg) \
-    do { perror(msg); exit(EXIT_FAILURE); } while (0)
+pthread_t tid[MAXNTHREAD];
+pthread_mutex_t m_acc; // lock used to only accept one request at a time
 
 void process_get(Messages__GetResponse *response,
                  Messages__GetRequest *request,
@@ -40,54 +23,33 @@ void process_put(Messages__PutResponse *response,
     response->success = true;
 }
 
-int main (int argc, char* argv[]) {
-    DBStore* store = dbstore_init("test.ind", "test.dat");
+void process_remove(Messages__RemoveResponse *response,
+                    Messages__RemoveRequest *request,
+                    DBStore *store) {
+   response->success = dbstore_remove(store, request->key);
+   response->key = strdup(request->key);
+}
 
-    char* key = argv[1];
-    if (argc == 2) { // lookup
-        debug("key lookup:\n");
-        DataValue* value = dbstore_get(store, key);
-        if (value != NULL) {
-            debug("value=%.*s\n", value->length, value->data);
-            data_value_free(value);
-        }
-        //write_index(store);
-        dbstore_destroy(store);
-        return 0;
-    } else if (argc ==  3) { // insert
-        char* data = argv[2];
-        dbstore_insert(store, key, strlen(data), data);
-        DataValue* value = dbstore_get(store, key);
-        debug("value=%.*s\n", value->length, value->data);
-        data_value_free(value);
-        dbstore_destroy(store);
-        return 0;
-    }
+void* connection_thread(void* args) {
+    struct sockaddr_in c_addr;
+    socklen_t addrlen;
+    int base_sd = ((struct thread_params*) args)->sockfd;
+    DBStore* store = ((struct thread_params*) args)->store;
+    int sockfd;
+    struct timeval timeout;
+    timeout.tv_sec = 5;
+    timeout.tv_usec = 0;
+    while (true) {
+        pthread_mutex_lock(&m_acc);
+        sockfd = accept(base_sd, &c_addr, &addrlen);
+        pthread_mutex_unlock(&m_acc);
+        setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
+        setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
+        debug("thread %d accepted socket", (int) pthread_self());
 
-
-    int listenfd = 0;
-    int connfd = 0;
-    struct sockaddr_in serv_addr;
-    void* sendBuff[1024];
-    uint8_t recvBuff[1024];
-
-    listenfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    memset(&serv_addr, '0', sizeof(serv_addr));
-    memset(sendBuff, '0', sizeof(sendBuff));
-    memset(recvBuff, '0', sizeof(recvBuff));
-
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(5000);
-
-    bind(listenfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
-
-    check(listen(listenfd, BACKLOG) == -1, "failed to lisen to port");
-    log_info("starting listening...");
-    while (1) {
-        connfd = accept(listenfd, (struct sockaddr*) NULL, NULL);
-        int n = read(connfd, recvBuff, sizeof(recvBuff) - 1);
+        uint8_t recvBuff[1024];
+        memset(recvBuff, '0', sizeof(recvBuff));
+        int n = read(sockfd, recvBuff, sizeof(recvBuff) - 1);
         if (n > 0)
             recvBuff[n] = 0;
 
@@ -95,6 +57,7 @@ int main (int argc, char* argv[]) {
         Messages__ClientResponse response = MESSAGES__CLIENT_RESPONSE__INIT;
         Messages__PutResponse putResponse = MESSAGES__PUT_RESPONSE__INIT;
         Messages__GetResponse getResponse = MESSAGES__GET_RESPONSE__INIT;
+        Messages__RemoveResponse removeResponse = MESSAGES__REMOVE_RESPONSE__INIT;
 
         if (request != NULL) {
             switch (request->type) {
@@ -110,6 +73,13 @@ int main (int argc, char* argv[]) {
                     response.type = MESSAGES__TYPE__PUT;
                     response.put = &putResponse;
                     break;
+                case MESSAGES__TYPE__REMOVE:
+                    debug("remove request");
+                    process_remove(&removeResponse, request->remove, store);
+                    response.type = MESSAGES__TYPE__REMOVE;
+                    response.remove = &removeResponse;
+                    exit(EXIT_FAILURE);
+                    break;
                 default:
                     log_warn("invalid type");
             }
@@ -117,7 +87,9 @@ int main (int argc, char* argv[]) {
             unsigned len = messages__client_response__get_packed_size(&response);
             void *buf = malloc(len);
             messages__client_response__pack(&response, buf);
-            write(connfd, buf, len);
+            if (write(sockfd, buf, len) == -1) {
+                log_warn("error while writing to socket");
+            }
 
             // frees up memory
             free(buf);
@@ -129,6 +101,9 @@ int main (int argc, char* argv[]) {
                 case MESSAGES__TYPE__PUT:
                     free(putResponse.key);
                     break;
+                case MESSAGES__TYPE__REMOVE:
+                    free(removeResponse.key);
+                    break;
                 default:
                     log_warn("invalid type");
             }
@@ -137,9 +112,41 @@ int main (int argc, char* argv[]) {
         } else {
             log_warn("failed to parse client request\n");
         }
-        close(connfd);
+        close(sockfd);
     }
+}
 
-    dbstore_destroy(store);
-    return 0;
+int init_sockfd(int port) {
+    struct sockaddr_in in_addr;
+    int sockfd;
+
+    bzero(&in_addr, sizeof(struct sockaddr_in));
+    in_addr.sin_family = AF_INET;
+    in_addr.sin_port = htons(port);
+    in_addr.sin_addr.s_addr = INADDR_ANY;
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    check(bind(sockfd, &in_addr, sizeof(in_addr)) != 0, "bind error");
+
+    check(listen(sockfd, BACKLOG) != 0, "listen error");
+    log_info("server listening on port %d", port);
+    return sockfd;
+}
+
+int main (int argc, char* argv[]) {
+    if (argc < 2) {
+        printf("usage: %s <port>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    DBStore* store = dbstore_init("test.ind", "test.dat");
+    int port = atoi(argv[1]);
+
+    struct thread_params* params = malloc(sizeof(struct thread_params));
+    params->sockfd = init_sockfd(port);
+    params->store = store;
+    pthread_mutex_init(&m_acc, 0);
+    for (int i = 0 ; i < MAXNTHREAD ; i++)
+        pthread_create(&tid[i], 0, connection_thread, (void *) params);
+    pause();
+    return EXIT_SUCCESS;
 }
