@@ -25,6 +25,7 @@ DBStore* dbstore_init(char* indexFilename, char* dataFilename) {
             MAP_SHARED, store->dataFd, pa_offset);
     check(store->data == MAP_FAILED, "data mmap failed");
     store->nextSpot = store->dataCapacity; // TODO
+    pthread_mutex_init(&store->lock, 0);
     return store;
 }
 
@@ -37,11 +38,15 @@ void dbstore_destroy(DBStore* store) {
 }
 
 bool dbstore_remove(DBStore* store, char* key) {
-    return index_remove(store->index, key);
+    pthread_mutex_lock(&store->lock);
+    bool result = index_remove(store->index, key);
+    pthread_mutex_unlock(&store->lock);
+    return result;
 }
 
 void dbstore_insert(DBStore* store, char* key, int length, void* data) {
     debug("inserting key %s", key);
+    pthread_mutex_lock(&store->lock);
     if (store->nextSpot + length > store->dataCapacity) {
         dbstore_grow(store, length);
     }
@@ -53,14 +58,17 @@ void dbstore_insert(DBStore* store, char* key, int length, void* data) {
     index_insert(store->index, dataKey);
 
     memcpy(store->data + store->nextSpot, data, length);
-    check(msync(store->data, store->dataCapacity, MS_SYNC) == -1, "data msync");
+    //check(msync(store->data, store->dataCapacity, MS_SYNC) == -1, "data msync");
     store->nextSpot += length;
     free(dataKey);
+    pthread_mutex_unlock(&store->lock);
 }
 
 DataValue* dbstore_get(DBStore* store, char* key) {
+    pthread_mutex_lock(&store->lock);
     IndexValue* index = index_get(store->index, key);
     if (index == NULL) {
+        pthread_mutex_unlock(&store->lock);
         return NULL;
     }
     DataValue* value = malloc(sizeof(DataValue));
@@ -71,6 +79,7 @@ DataValue* dbstore_get(DBStore* store, char* key) {
     memcpy(value->data, store->data + index->offset, index->length);
     debug("get %s = %.*s", key, value->length, value->data);
     free(index);
+    pthread_mutex_unlock(&store->lock);
     return value;
 }
 

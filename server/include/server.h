@@ -20,7 +20,7 @@
 #include "logging.h"
 #include "messages.pb-c.h"
 
-#define BACKLOG 1000
+#define BACKLOG 10
 #define MAXNTHREAD 100
 
 /**

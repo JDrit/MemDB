@@ -47,70 +47,78 @@ void* connection_thread(void* args) {
         setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
         debug("thread %d accepted socket", (int) pthread_self());
 
-        uint8_t recvBuff[1024];
-        memset(recvBuff, '0', sizeof(recvBuff));
-        int n = read(sockfd, recvBuff, sizeof(recvBuff) - 1);
-        if (n > 0)
-            recvBuff[n] = 0;
-
-        Messages__ClientRequest *request = messages__client_request__unpack(NULL, n, recvBuff);
-        Messages__ClientResponse response = MESSAGES__CLIENT_RESPONSE__INIT;
-        Messages__PutResponse putResponse = MESSAGES__PUT_RESPONSE__INIT;
-        Messages__GetResponse getResponse = MESSAGES__GET_RESPONSE__INIT;
-        Messages__RemoveResponse removeResponse = MESSAGES__REMOVE_RESPONSE__INIT;
-
-        if (request != NULL) {
-            switch (request->type) {
-                case MESSAGES__TYPE__GET:
-                    debug("get request");
-                    process_get(&getResponse, request->get, store);
-                    response.type = MESSAGES__TYPE__GET;
-                    response.get = &getResponse;
-                    break;
-                case MESSAGES__TYPE__PUT:
-                    debug("put request");
-                    process_put(&putResponse, request->put, store);
-                    response.type = MESSAGES__TYPE__PUT;
-                    response.put = &putResponse;
-                    break;
-                case MESSAGES__TYPE__REMOVE:
-                    debug("remove request");
-                    process_remove(&removeResponse, request->remove, store);
-                    response.type = MESSAGES__TYPE__REMOVE;
-                    response.remove = &removeResponse;
-                    exit(EXIT_FAILURE);
-                    break;
-                default:
-                    log_warn("invalid type");
+        while (true) {
+            uint8_t recvBuff[1024];
+            memset(recvBuff, '0', sizeof(recvBuff));
+            int n = read(sockfd, recvBuff, sizeof(recvBuff) - 1);
+            if (n == -1 && errno == EINTR) {
+                n = read(sockfd, recvBuff, sizeof(recvBuff) - 1);
+                log_warn("encountered EINTR error, retrying...");
             }
+            if (n > 0)
+                recvBuff[n] = 0;
+            else
+                break;
 
-            unsigned len = messages__client_response__get_packed_size(&response);
-            void *buf = malloc(len);
-            messages__client_response__pack(&response, buf);
-            if (write(sockfd, buf, len) == -1) {
-                log_warn("error while writing to socket");
+            Messages__ClientRequest *request = messages__client_request__unpack(NULL, n, recvBuff);
+            Messages__ClientResponse response = MESSAGES__CLIENT_RESPONSE__INIT;
+            Messages__PutResponse putResponse = MESSAGES__PUT_RESPONSE__INIT;
+            Messages__GetResponse getResponse = MESSAGES__GET_RESPONSE__INIT;
+            Messages__RemoveResponse removeResponse = MESSAGES__REMOVE_RESPONSE__INIT;
+
+            if (request != NULL) {
+                switch (request->type) {
+                    case MESSAGES__TYPE__GET:
+                        debug("get request");
+                        process_get(&getResponse, request->get, store);
+                        response.type = MESSAGES__TYPE__GET;
+                        response.get = &getResponse;
+                        break;
+                    case MESSAGES__TYPE__PUT:
+                        debug("put request");
+                        process_put(&putResponse, request->put, store);
+                        response.type = MESSAGES__TYPE__PUT;
+                        response.put = &putResponse;
+                        break;
+                    case MESSAGES__TYPE__REMOVE:
+                        debug("remove request");
+                        process_remove(&removeResponse, request->remove, store);
+                        response.type = MESSAGES__TYPE__REMOVE;
+                        response.remove = &removeResponse;
+                        break;
+                    default:
+                        log_warn("invalid type");
+                }
+
+                unsigned len = messages__client_response__get_packed_size(&response);
+                void *buf = malloc(len);
+                messages__client_response__pack(&response, buf);
+                n = write(sockfd, buf, len);
+                if (n <= 0) {
+                    log_warn("error while writing to socket");
+                }
+
+                // frees up memory
+                free(buf);
+                switch(request->type) {
+                    case MESSAGES__TYPE__GET:
+                        free(getResponse.key);
+                        free(getResponse.value);
+                        break;
+                    case MESSAGES__TYPE__PUT:
+                        free(putResponse.key);
+                        break;
+                    case MESSAGES__TYPE__REMOVE:
+                        free(removeResponse.key);
+                        break;
+                    default:
+                        log_warn("invalid type");
+                }
+                messages__client_request__free_unpacked(request, NULL);
+
+            } else {
+                log_warn("failed to parse client request\n");
             }
-
-            // frees up memory
-            free(buf);
-            switch(request->type) {
-                case MESSAGES__TYPE__GET:
-                    free(getResponse.key);
-                    free(getResponse.value);
-                    break;
-                case MESSAGES__TYPE__PUT:
-                    free(putResponse.key);
-                    break;
-                case MESSAGES__TYPE__REMOVE:
-                    free(removeResponse.key);
-                    break;
-                default:
-                    log_warn("invalid type");
-            }
-            messages__client_request__free_unpacked(request, NULL);
-
-        } else {
-            log_warn("failed to parse client request\n");
         }
         close(sockfd);
     }

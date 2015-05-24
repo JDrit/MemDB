@@ -76,7 +76,7 @@ void index_insert(DBIndex* index, IndexValue* value) {
         i = find_slot(index, value->key);
     }
     memcpy(index->index + i * sizeof(IndexValue), value, sizeof(IndexValue));
-    check(msync(index->index, index->capacity * sizeof(IndexValue), MS_SYNC) == -1, "index insert msync");
+    //check(msync(index->index, index->capacity * sizeof(IndexValue), MS_SYNC) == -1, "index insert msync");
     index->numFilled++;
 }
 
@@ -207,6 +207,7 @@ static DBIndex* index_resize(DBIndex* index) {
     index->numFilled = newIndex->numFilled;
     free(newIndex->filename);
     free(newIndex);
+    log_info("done increasing index size");
     return newIndex;
 }
 

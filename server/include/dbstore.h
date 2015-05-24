@@ -12,7 +12,7 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <string.h>
-
+#include <pthread.h>
 #include "dbindex.h"
 
 typedef struct {
@@ -21,6 +21,7 @@ typedef struct {
     unsigned long long nextSpot;
     unsigned long long dataCapacity;
     int dataFd;
+    pthread_mutex_t lock;
 } DBStore;
 
 typedef struct {
