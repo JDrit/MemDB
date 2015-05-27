@@ -16,12 +16,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <signal.h>
 #include "dbstore.h"
 #include "logging.h"
 #include "messages.pb-c.h"
 
 #define BACKLOG 10
-#define MAXNTHREAD 100
+#define MAXNTHREAD 10
 
 /**
  * Struct that is passed to all threads to give setup information

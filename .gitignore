@@ -35,6 +35,24 @@
 # custom files
 *.dat
 *.ind
+analysis.txt
 
 server/server
 client/client
+
+
+dist
+cabal-dev
+*.o
+*.hi
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+.cabal-sandbox/
+cabal.sandbox.config
+*.prof
+*.aux
+*.hp

@@ -30,6 +30,11 @@ void process_remove(Messages__RemoveResponse *response,
    response->key = strdup(request->key);
 }
 
+void sig_handler(int signo) {
+    log_info("received signal %d, shutting down", signo);
+    exit(EXIT_SUCCESS);
+}
+
 void* connection_thread(void* args) {
     struct sockaddr_in c_addr;
     socklen_t addrlen;
@@ -70,19 +75,22 @@ void* connection_thread(void* args) {
                 switch (request->type) {
                     case MESSAGES__TYPE__GET:
                         debug("get request");
-                        process_get(&getResponse, request->get, store);
+                        if (request->get != NULL)
+                            process_get(&getResponse, request->get, store);
                         response.type = MESSAGES__TYPE__GET;
                         response.get = &getResponse;
                         break;
                     case MESSAGES__TYPE__PUT:
                         debug("put request");
-                        process_put(&putResponse, request->put, store);
+                        if (request->put != NULL)
+                            process_put(&putResponse, request->put, store);
                         response.type = MESSAGES__TYPE__PUT;
                         response.put = &putResponse;
                         break;
                     case MESSAGES__TYPE__REMOVE:
                         debug("remove request");
-                        process_remove(&removeResponse, request->remove, store);
+                        if (request->remove != NULL)
+                            process_remove(&removeResponse, request->remove, store);
                         response.type = MESSAGES__TYPE__REMOVE;
                         response.remove = &removeResponse;
                         break;
@@ -146,6 +154,7 @@ int main (int argc, char* argv[]) {
         printf("usage: %s <port>\n", argv[0]);
         return EXIT_FAILURE;
     }
+    check(signal(SIGINT, sig_handler) == SIG_ERR, "could not catch SIGINT");
     DBStore* store = dbstore_init("test.ind", "test.dat");
     int port = atoi(argv[1]);
 
@@ -155,6 +164,7 @@ int main (int argc, char* argv[]) {
     pthread_mutex_init(&m_acc, 0);
     for (int i = 0 ; i < MAXNTHREAD ; i++)
         pthread_create(&tid[i], 0, connection_thread, (void *) params);
-    pause();
+    for (int i = 0 ; i < MAXNTHREAD ; i++)
+        pthread_join(tid[i], NULL);
     return EXIT_SUCCESS;
 }
