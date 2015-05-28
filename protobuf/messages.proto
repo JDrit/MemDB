@@ -1,23 +1,58 @@
 package messages;
 
+// Data Type stuff
+
+enum MessageType {
+    GET     = 1;
+    PUT     = 2;
+    REMOVE  = 3;
+    PUSH    = 4;
+    POP     = 5;
+    ENQUEUE = 6;
+    DEQUEUE = 7;
+    PEEK    = 8;
+    SIZE    = 9;
+};
+
+enum DataType {
+    INT         = 1;
+    STRING      = 2;
+}
+
+enum Error {
+    NO_VALUE    = 1;
+    KEY_IN_USE  = 2;
+    WRONG_TYPE  = 3;
+    EMPTY       = 4;
+    WRONG_VALUE = 5;
+}
+
+message Value {
+    required DataType dataType  = 1;
+    optional string stringValue = 2;
+    optional int32 intValue     = 3;
+}
+
+// Basis operations
+
 message GetRequest {
     required string key = 1;
 }
 
 message GetResponse {
-    required string key = 1;
-    required bool success = 2;
-    optional string value = 3;
+    required string key  = 1;
+    optional Value value = 2;
+    optional Error error = 3;
 }
 
 message PutRequest {
-    required string key = 1;
-    required string value = 2;
+    required string key  = 1;
+    required Value value = 2;
 }
 
 message PutResponse {
-    required string key = 1;
-    required bool success = 2;
+    required string key  = 1;
+    optional Error error = 2;
 }
 
 message RemoveRequest {
@@ -25,26 +60,118 @@ message RemoveRequest {
 }
 
 message RemoveResponse {
-    required string key = 1;
-    required bool success = 2;
+    required string key  = 1;
+    optional Error error = 2;
 }
 
-enum Type {
-    GET = 1;
-    PUT = 2;
-    REMOVE = 3;
-};
- 
+// Stack operations
+
+message InitStackRequest {
+    required string key = 1;
+}
+
+message InitStackResponse {
+    required string key  = 1;
+    optional Error error = 2;
+}
+
+message PushRequest {
+    required string key  = 1;
+    required Value value = 2;
+}
+
+message PushResponse {
+    required string key  = 1;
+    optional Error error = 2;
+}
+
+message PopRequest {
+    required string key = 1;
+}
+
+message PopResponse {
+    required string key  = 1;
+    optional Value value = 2;
+    optional Error error = 3;
+}
+
+// Queue operations
+
+message InitQueueRequest {
+    required string key = 1;
+}
+
+message InitQueueResponse {
+    required string key  = 1;
+    optional Error error = 2;
+}
+
+message EnqueueRequest {
+    required string key  = 1;
+    required Value value = 2;
+}
+
+message EnqueueResponse {
+    required string key  = 1;
+    optional Error error = 2;
+}
+
+message DequeueRequest {
+    required string key = 1;
+}
+
+message DequeueResponse {
+    required string key  = 1;
+    optional Value value = 2;
+    optional Error error = 3;
+}
+
+// Stack + Queue operations
+
+message PeekRequest {
+    required string key = 1;
+}
+
+message PeekResponse {
+    required string key  = 1;
+    optional Value value = 2;
+    optional Error error = 3;
+}
+
+message SizeRequest {
+    required string key = 1;
+}
+
+message SizeResponse {
+    required string key  = 1;
+    optional int32 size  = 2;
+    optional Error error = 3;
+}
+
+// Main messages
+
 message ClientRequest {
-    required Type type = 1;
-    optional GetRequest get = 2;
-    optional PutRequest put = 3;
-    optional RemoveRequest remove = 4;
+    required MessageType type       = 1;
+    optional GetRequest get         = 2;
+    optional PutRequest put         = 3;
+    optional RemoveRequest remove   = 4;
+    optional PushRequest push       = 5;
+    optional PopRequest pop         = 6;
+    optional EnqueueRequest enqueue = 7;
+    optional DequeueRequest dequeue = 8;
+    optional PeekRequest peek       = 9;
+    optional SizeRequest size       = 10;
 }
 
 message ClientResponse {
-    required Type type = 1;
-    optional GetResponse get = 2;
-    optional PutResponse put = 3;
-    optional RemoveResponse remove = 4;
+    required MessageType type        = 1;
+    optional GetResponse get         = 2;
+    optional PutResponse put         = 3;
+    optional RemoveResponse remove   = 4;
+    optional PushResponse push       = 5;
+    optional PopResponse pop         = 6;
+    optional EnqueueResponse enqueue = 7;
+    optional DequeueResponse dequeue = 8;
+    optional PeekResponse peek       = 9;
+    optional SizeResponse size       = 10;
 }

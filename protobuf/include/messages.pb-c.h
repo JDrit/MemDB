@@ -15,26 +15,75 @@ PROTOBUF_C__BEGIN_DECLS
 #endif
 
 
+typedef struct _Messages__Value Messages__Value;
 typedef struct _Messages__GetRequest Messages__GetRequest;
 typedef struct _Messages__GetResponse Messages__GetResponse;
 typedef struct _Messages__PutRequest Messages__PutRequest;
 typedef struct _Messages__PutResponse Messages__PutResponse;
 typedef struct _Messages__RemoveRequest Messages__RemoveRequest;
 typedef struct _Messages__RemoveResponse Messages__RemoveResponse;
+typedef struct _Messages__InitStackRequest Messages__InitStackRequest;
+typedef struct _Messages__InitStackResponse Messages__InitStackResponse;
+typedef struct _Messages__PushRequest Messages__PushRequest;
+typedef struct _Messages__PushResponse Messages__PushResponse;
+typedef struct _Messages__PopRequest Messages__PopRequest;
+typedef struct _Messages__PopResponse Messages__PopResponse;
+typedef struct _Messages__InitQueueRequest Messages__InitQueueRequest;
+typedef struct _Messages__InitQueueResponse Messages__InitQueueResponse;
+typedef struct _Messages__EnqueueRequest Messages__EnqueueRequest;
+typedef struct _Messages__EnqueueResponse Messages__EnqueueResponse;
+typedef struct _Messages__DequeueRequest Messages__DequeueRequest;
+typedef struct _Messages__DequeueResponse Messages__DequeueResponse;
+typedef struct _Messages__PeekRequest Messages__PeekRequest;
+typedef struct _Messages__PeekResponse Messages__PeekResponse;
+typedef struct _Messages__SizeRequest Messages__SizeRequest;
+typedef struct _Messages__SizeResponse Messages__SizeResponse;
 typedef struct _Messages__ClientRequest Messages__ClientRequest;
 typedef struct _Messages__ClientResponse Messages__ClientResponse;
 
 
 /* --- enums --- */
 
-typedef enum _Messages__Type {
-  MESSAGES__TYPE__GET = 1,
-  MESSAGES__TYPE__PUT = 2,
-  MESSAGES__TYPE__REMOVE = 3
-    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(MESSAGES__TYPE)
-} Messages__Type;
+typedef enum _Messages__MessageType {
+  MESSAGES__MESSAGE_TYPE__GET = 1,
+  MESSAGES__MESSAGE_TYPE__PUT = 2,
+  MESSAGES__MESSAGE_TYPE__REMOVE = 3,
+  MESSAGES__MESSAGE_TYPE__PUSH = 4,
+  MESSAGES__MESSAGE_TYPE__POP = 5,
+  MESSAGES__MESSAGE_TYPE__ENQUEUE = 6,
+  MESSAGES__MESSAGE_TYPE__DEQUEUE = 7,
+  MESSAGES__MESSAGE_TYPE__PEEK = 8,
+  MESSAGES__MESSAGE_TYPE__SIZE = 9
+    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(MESSAGES__MESSAGE_TYPE)
+} Messages__MessageType;
+typedef enum _Messages__DataType {
+  MESSAGES__DATA_TYPE__INT = 1,
+  MESSAGES__DATA_TYPE__STRING = 2
+    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(MESSAGES__DATA_TYPE)
+} Messages__DataType;
+typedef enum _Messages__Error {
+  MESSAGES__ERROR__NO_VALUE = 1,
+  MESSAGES__ERROR__KEY_IN_USE = 2,
+  MESSAGES__ERROR__WRONG_TYPE = 3,
+  MESSAGES__ERROR__EMPTY = 4,
+  MESSAGES__ERROR__WRONG_VALUE = 5
+    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(MESSAGES__ERROR)
+} Messages__Error;
 
 /* --- messages --- */
+
+struct  _Messages__Value
+{
+  ProtobufCMessage base;
+  Messages__DataType datatype;
+  char *stringvalue;
+  protobuf_c_boolean has_intvalue;
+  int32_t intvalue;
+};
+#define MESSAGES__VALUE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__value__descriptor) \
+    , 0, NULL, 0,0 }
+
 
 struct  _Messages__GetRequest
 {
@@ -50,19 +99,20 @@ struct  _Messages__GetResponse
 {
   ProtobufCMessage base;
   char *key;
-  protobuf_c_boolean success;
-  char *value;
+  Messages__Value *value;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
 };
 #define MESSAGES__GET_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&messages__get_response__descriptor) \
-    , NULL, 0, NULL }
+    , NULL, NULL, 0,0 }
 
 
 struct  _Messages__PutRequest
 {
   ProtobufCMessage base;
   char *key;
-  char *value;
+  Messages__Value *value;
 };
 #define MESSAGES__PUT_REQUEST__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&messages__put_request__descriptor) \
@@ -73,11 +123,12 @@ struct  _Messages__PutResponse
 {
   ProtobufCMessage base;
   char *key;
-  protobuf_c_boolean success;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
 };
 #define MESSAGES__PUT_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&messages__put_response__descriptor) \
-    , NULL, 0 }
+    , NULL, 0,0 }
 
 
 struct  _Messages__RemoveRequest
@@ -94,39 +145,254 @@ struct  _Messages__RemoveResponse
 {
   ProtobufCMessage base;
   char *key;
-  protobuf_c_boolean success;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
 };
 #define MESSAGES__REMOVE_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&messages__remove_response__descriptor) \
-    , NULL, 0 }
+    , NULL, 0,0 }
+
+
+struct  _Messages__InitStackRequest
+{
+  ProtobufCMessage base;
+  char *key;
+};
+#define MESSAGES__INIT_STACK_REQUEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__init_stack_request__descriptor) \
+    , NULL }
+
+
+struct  _Messages__InitStackResponse
+{
+  ProtobufCMessage base;
+  char *key;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
+};
+#define MESSAGES__INIT_STACK_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__init_stack_response__descriptor) \
+    , NULL, 0,0 }
+
+
+struct  _Messages__PushRequest
+{
+  ProtobufCMessage base;
+  char *key;
+  Messages__Value *value;
+};
+#define MESSAGES__PUSH_REQUEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__push_request__descriptor) \
+    , NULL, NULL }
+
+
+struct  _Messages__PushResponse
+{
+  ProtobufCMessage base;
+  char *key;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
+};
+#define MESSAGES__PUSH_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__push_response__descriptor) \
+    , NULL, 0,0 }
+
+
+struct  _Messages__PopRequest
+{
+  ProtobufCMessage base;
+  char *key;
+};
+#define MESSAGES__POP_REQUEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__pop_request__descriptor) \
+    , NULL }
+
+
+struct  _Messages__PopResponse
+{
+  ProtobufCMessage base;
+  char *key;
+  Messages__Value *value;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
+};
+#define MESSAGES__POP_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__pop_response__descriptor) \
+    , NULL, NULL, 0,0 }
+
+
+struct  _Messages__InitQueueRequest
+{
+  ProtobufCMessage base;
+  char *key;
+};
+#define MESSAGES__INIT_QUEUE_REQUEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__init_queue_request__descriptor) \
+    , NULL }
+
+
+struct  _Messages__InitQueueResponse
+{
+  ProtobufCMessage base;
+  char *key;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
+};
+#define MESSAGES__INIT_QUEUE_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__init_queue_response__descriptor) \
+    , NULL, 0,0 }
+
+
+struct  _Messages__EnqueueRequest
+{
+  ProtobufCMessage base;
+  char *key;
+  Messages__Value *value;
+};
+#define MESSAGES__ENQUEUE_REQUEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__enqueue_request__descriptor) \
+    , NULL, NULL }
+
+
+struct  _Messages__EnqueueResponse
+{
+  ProtobufCMessage base;
+  char *key;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
+};
+#define MESSAGES__ENQUEUE_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__enqueue_response__descriptor) \
+    , NULL, 0,0 }
+
+
+struct  _Messages__DequeueRequest
+{
+  ProtobufCMessage base;
+  char *key;
+};
+#define MESSAGES__DEQUEUE_REQUEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__dequeue_request__descriptor) \
+    , NULL }
+
+
+struct  _Messages__DequeueResponse
+{
+  ProtobufCMessage base;
+  char *key;
+  Messages__Value *value;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
+};
+#define MESSAGES__DEQUEUE_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__dequeue_response__descriptor) \
+    , NULL, NULL, 0,0 }
+
+
+struct  _Messages__PeekRequest
+{
+  ProtobufCMessage base;
+  char *key;
+};
+#define MESSAGES__PEEK_REQUEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__peek_request__descriptor) \
+    , NULL }
+
+
+struct  _Messages__PeekResponse
+{
+  ProtobufCMessage base;
+  char *key;
+  Messages__Value *value;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
+};
+#define MESSAGES__PEEK_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__peek_response__descriptor) \
+    , NULL, NULL, 0,0 }
+
+
+struct  _Messages__SizeRequest
+{
+  ProtobufCMessage base;
+  char *key;
+};
+#define MESSAGES__SIZE_REQUEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__size_request__descriptor) \
+    , NULL }
+
+
+struct  _Messages__SizeResponse
+{
+  ProtobufCMessage base;
+  char *key;
+  protobuf_c_boolean has_size;
+  int32_t size;
+  protobuf_c_boolean has_error;
+  Messages__Error error;
+};
+#define MESSAGES__SIZE_RESPONSE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&messages__size_response__descriptor) \
+    , NULL, 0,0, 0,0 }
 
 
 struct  _Messages__ClientRequest
 {
   ProtobufCMessage base;
-  Messages__Type type;
+  Messages__MessageType type;
   Messages__GetRequest *get;
   Messages__PutRequest *put;
   Messages__RemoveRequest *remove;
+  Messages__PushRequest *push;
+  Messages__PopRequest *pop;
+  Messages__EnqueueRequest *enqueue;
+  Messages__DequeueRequest *dequeue;
+  Messages__PeekRequest *peek;
+  Messages__SizeRequest *size;
 };
 #define MESSAGES__CLIENT_REQUEST__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&messages__client_request__descriptor) \
-    , 0, NULL, NULL, NULL }
+    , 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 
 
 struct  _Messages__ClientResponse
 {
   ProtobufCMessage base;
-  Messages__Type type;
+  Messages__MessageType type;
   Messages__GetResponse *get;
   Messages__PutResponse *put;
   Messages__RemoveResponse *remove;
+  Messages__PushResponse *push;
+  Messages__PopResponse *pop;
+  Messages__EnqueueResponse *enqueue;
+  Messages__DequeueResponse *dequeue;
+  Messages__PeekResponse *peek;
+  Messages__SizeResponse *size;
 };
 #define MESSAGES__CLIENT_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&messages__client_response__descriptor) \
-    , 0, NULL, NULL, NULL }
+    , 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 
 
+/* Messages__Value methods */
+void   messages__value__init
+                     (Messages__Value         *message);
+size_t messages__value__get_packed_size
+                     (const Messages__Value   *message);
+size_t messages__value__pack
+                     (const Messages__Value   *message,
+                      uint8_t             *out);
+size_t messages__value__pack_to_buffer
+                     (const Messages__Value   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__Value *
+       messages__value__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__value__free_unpacked
+                     (Messages__Value *message,
+                      ProtobufCAllocator *allocator);
 /* Messages__GetRequest methods */
 void   messages__get_request__init
                      (Messages__GetRequest         *message);
@@ -241,6 +507,310 @@ Messages__RemoveResponse *
 void   messages__remove_response__free_unpacked
                      (Messages__RemoveResponse *message,
                       ProtobufCAllocator *allocator);
+/* Messages__InitStackRequest methods */
+void   messages__init_stack_request__init
+                     (Messages__InitStackRequest         *message);
+size_t messages__init_stack_request__get_packed_size
+                     (const Messages__InitStackRequest   *message);
+size_t messages__init_stack_request__pack
+                     (const Messages__InitStackRequest   *message,
+                      uint8_t             *out);
+size_t messages__init_stack_request__pack_to_buffer
+                     (const Messages__InitStackRequest   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__InitStackRequest *
+       messages__init_stack_request__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__init_stack_request__free_unpacked
+                     (Messages__InitStackRequest *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__InitStackResponse methods */
+void   messages__init_stack_response__init
+                     (Messages__InitStackResponse         *message);
+size_t messages__init_stack_response__get_packed_size
+                     (const Messages__InitStackResponse   *message);
+size_t messages__init_stack_response__pack
+                     (const Messages__InitStackResponse   *message,
+                      uint8_t             *out);
+size_t messages__init_stack_response__pack_to_buffer
+                     (const Messages__InitStackResponse   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__InitStackResponse *
+       messages__init_stack_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__init_stack_response__free_unpacked
+                     (Messages__InitStackResponse *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__PushRequest methods */
+void   messages__push_request__init
+                     (Messages__PushRequest         *message);
+size_t messages__push_request__get_packed_size
+                     (const Messages__PushRequest   *message);
+size_t messages__push_request__pack
+                     (const Messages__PushRequest   *message,
+                      uint8_t             *out);
+size_t messages__push_request__pack_to_buffer
+                     (const Messages__PushRequest   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__PushRequest *
+       messages__push_request__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__push_request__free_unpacked
+                     (Messages__PushRequest *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__PushResponse methods */
+void   messages__push_response__init
+                     (Messages__PushResponse         *message);
+size_t messages__push_response__get_packed_size
+                     (const Messages__PushResponse   *message);
+size_t messages__push_response__pack
+                     (const Messages__PushResponse   *message,
+                      uint8_t             *out);
+size_t messages__push_response__pack_to_buffer
+                     (const Messages__PushResponse   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__PushResponse *
+       messages__push_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__push_response__free_unpacked
+                     (Messages__PushResponse *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__PopRequest methods */
+void   messages__pop_request__init
+                     (Messages__PopRequest         *message);
+size_t messages__pop_request__get_packed_size
+                     (const Messages__PopRequest   *message);
+size_t messages__pop_request__pack
+                     (const Messages__PopRequest   *message,
+                      uint8_t             *out);
+size_t messages__pop_request__pack_to_buffer
+                     (const Messages__PopRequest   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__PopRequest *
+       messages__pop_request__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__pop_request__free_unpacked
+                     (Messages__PopRequest *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__PopResponse methods */
+void   messages__pop_response__init
+                     (Messages__PopResponse         *message);
+size_t messages__pop_response__get_packed_size
+                     (const Messages__PopResponse   *message);
+size_t messages__pop_response__pack
+                     (const Messages__PopResponse   *message,
+                      uint8_t             *out);
+size_t messages__pop_response__pack_to_buffer
+                     (const Messages__PopResponse   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__PopResponse *
+       messages__pop_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__pop_response__free_unpacked
+                     (Messages__PopResponse *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__InitQueueRequest methods */
+void   messages__init_queue_request__init
+                     (Messages__InitQueueRequest         *message);
+size_t messages__init_queue_request__get_packed_size
+                     (const Messages__InitQueueRequest   *message);
+size_t messages__init_queue_request__pack
+                     (const Messages__InitQueueRequest   *message,
+                      uint8_t             *out);
+size_t messages__init_queue_request__pack_to_buffer
+                     (const Messages__InitQueueRequest   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__InitQueueRequest *
+       messages__init_queue_request__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__init_queue_request__free_unpacked
+                     (Messages__InitQueueRequest *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__InitQueueResponse methods */
+void   messages__init_queue_response__init
+                     (Messages__InitQueueResponse         *message);
+size_t messages__init_queue_response__get_packed_size
+                     (const Messages__InitQueueResponse   *message);
+size_t messages__init_queue_response__pack
+                     (const Messages__InitQueueResponse   *message,
+                      uint8_t             *out);
+size_t messages__init_queue_response__pack_to_buffer
+                     (const Messages__InitQueueResponse   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__InitQueueResponse *
+       messages__init_queue_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__init_queue_response__free_unpacked
+                     (Messages__InitQueueResponse *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__EnqueueRequest methods */
+void   messages__enqueue_request__init
+                     (Messages__EnqueueRequest         *message);
+size_t messages__enqueue_request__get_packed_size
+                     (const Messages__EnqueueRequest   *message);
+size_t messages__enqueue_request__pack
+                     (const Messages__EnqueueRequest   *message,
+                      uint8_t             *out);
+size_t messages__enqueue_request__pack_to_buffer
+                     (const Messages__EnqueueRequest   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__EnqueueRequest *
+       messages__enqueue_request__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__enqueue_request__free_unpacked
+                     (Messages__EnqueueRequest *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__EnqueueResponse methods */
+void   messages__enqueue_response__init
+                     (Messages__EnqueueResponse         *message);
+size_t messages__enqueue_response__get_packed_size
+                     (const Messages__EnqueueResponse   *message);
+size_t messages__enqueue_response__pack
+                     (const Messages__EnqueueResponse   *message,
+                      uint8_t             *out);
+size_t messages__enqueue_response__pack_to_buffer
+                     (const Messages__EnqueueResponse   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__EnqueueResponse *
+       messages__enqueue_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__enqueue_response__free_unpacked
+                     (Messages__EnqueueResponse *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__DequeueRequest methods */
+void   messages__dequeue_request__init
+                     (Messages__DequeueRequest         *message);
+size_t messages__dequeue_request__get_packed_size
+                     (const Messages__DequeueRequest   *message);
+size_t messages__dequeue_request__pack
+                     (const Messages__DequeueRequest   *message,
+                      uint8_t             *out);
+size_t messages__dequeue_request__pack_to_buffer
+                     (const Messages__DequeueRequest   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__DequeueRequest *
+       messages__dequeue_request__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__dequeue_request__free_unpacked
+                     (Messages__DequeueRequest *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__DequeueResponse methods */
+void   messages__dequeue_response__init
+                     (Messages__DequeueResponse         *message);
+size_t messages__dequeue_response__get_packed_size
+                     (const Messages__DequeueResponse   *message);
+size_t messages__dequeue_response__pack
+                     (const Messages__DequeueResponse   *message,
+                      uint8_t             *out);
+size_t messages__dequeue_response__pack_to_buffer
+                     (const Messages__DequeueResponse   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__DequeueResponse *
+       messages__dequeue_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__dequeue_response__free_unpacked
+                     (Messages__DequeueResponse *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__PeekRequest methods */
+void   messages__peek_request__init
+                     (Messages__PeekRequest         *message);
+size_t messages__peek_request__get_packed_size
+                     (const Messages__PeekRequest   *message);
+size_t messages__peek_request__pack
+                     (const Messages__PeekRequest   *message,
+                      uint8_t             *out);
+size_t messages__peek_request__pack_to_buffer
+                     (const Messages__PeekRequest   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__PeekRequest *
+       messages__peek_request__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__peek_request__free_unpacked
+                     (Messages__PeekRequest *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__PeekResponse methods */
+void   messages__peek_response__init
+                     (Messages__PeekResponse         *message);
+size_t messages__peek_response__get_packed_size
+                     (const Messages__PeekResponse   *message);
+size_t messages__peek_response__pack
+                     (const Messages__PeekResponse   *message,
+                      uint8_t             *out);
+size_t messages__peek_response__pack_to_buffer
+                     (const Messages__PeekResponse   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__PeekResponse *
+       messages__peek_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__peek_response__free_unpacked
+                     (Messages__PeekResponse *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__SizeRequest methods */
+void   messages__size_request__init
+                     (Messages__SizeRequest         *message);
+size_t messages__size_request__get_packed_size
+                     (const Messages__SizeRequest   *message);
+size_t messages__size_request__pack
+                     (const Messages__SizeRequest   *message,
+                      uint8_t             *out);
+size_t messages__size_request__pack_to_buffer
+                     (const Messages__SizeRequest   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__SizeRequest *
+       messages__size_request__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__size_request__free_unpacked
+                     (Messages__SizeRequest *message,
+                      ProtobufCAllocator *allocator);
+/* Messages__SizeResponse methods */
+void   messages__size_response__init
+                     (Messages__SizeResponse         *message);
+size_t messages__size_response__get_packed_size
+                     (const Messages__SizeResponse   *message);
+size_t messages__size_response__pack
+                     (const Messages__SizeResponse   *message,
+                      uint8_t             *out);
+size_t messages__size_response__pack_to_buffer
+                     (const Messages__SizeResponse   *message,
+                      ProtobufCBuffer     *buffer);
+Messages__SizeResponse *
+       messages__size_response__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   messages__size_response__free_unpacked
+                     (Messages__SizeResponse *message,
+                      ProtobufCAllocator *allocator);
 /* Messages__ClientRequest methods */
 void   messages__client_request__init
                      (Messages__ClientRequest         *message);
@@ -281,6 +851,9 @@ void   messages__client_response__free_unpacked
                       ProtobufCAllocator *allocator);
 /* --- per-message closures --- */
 
+typedef void (*Messages__Value_Closure)
+                 (const Messages__Value *message,
+                  void *closure_data);
 typedef void (*Messages__GetRequest_Closure)
                  (const Messages__GetRequest *message,
                   void *closure_data);
@@ -299,6 +872,54 @@ typedef void (*Messages__RemoveRequest_Closure)
 typedef void (*Messages__RemoveResponse_Closure)
                  (const Messages__RemoveResponse *message,
                   void *closure_data);
+typedef void (*Messages__InitStackRequest_Closure)
+                 (const Messages__InitStackRequest *message,
+                  void *closure_data);
+typedef void (*Messages__InitStackResponse_Closure)
+                 (const Messages__InitStackResponse *message,
+                  void *closure_data);
+typedef void (*Messages__PushRequest_Closure)
+                 (const Messages__PushRequest *message,
+                  void *closure_data);
+typedef void (*Messages__PushResponse_Closure)
+                 (const Messages__PushResponse *message,
+                  void *closure_data);
+typedef void (*Messages__PopRequest_Closure)
+                 (const Messages__PopRequest *message,
+                  void *closure_data);
+typedef void (*Messages__PopResponse_Closure)
+                 (const Messages__PopResponse *message,
+                  void *closure_data);
+typedef void (*Messages__InitQueueRequest_Closure)
+                 (const Messages__InitQueueRequest *message,
+                  void *closure_data);
+typedef void (*Messages__InitQueueResponse_Closure)
+                 (const Messages__InitQueueResponse *message,
+                  void *closure_data);
+typedef void (*Messages__EnqueueRequest_Closure)
+                 (const Messages__EnqueueRequest *message,
+                  void *closure_data);
+typedef void (*Messages__EnqueueResponse_Closure)
+                 (const Messages__EnqueueResponse *message,
+                  void *closure_data);
+typedef void (*Messages__DequeueRequest_Closure)
+                 (const Messages__DequeueRequest *message,
+                  void *closure_data);
+typedef void (*Messages__DequeueResponse_Closure)
+                 (const Messages__DequeueResponse *message,
+                  void *closure_data);
+typedef void (*Messages__PeekRequest_Closure)
+                 (const Messages__PeekRequest *message,
+                  void *closure_data);
+typedef void (*Messages__PeekResponse_Closure)
+                 (const Messages__PeekResponse *message,
+                  void *closure_data);
+typedef void (*Messages__SizeRequest_Closure)
+                 (const Messages__SizeRequest *message,
+                  void *closure_data);
+typedef void (*Messages__SizeResponse_Closure)
+                 (const Messages__SizeResponse *message,
+                  void *closure_data);
 typedef void (*Messages__ClientRequest_Closure)
                  (const Messages__ClientRequest *message,
                   void *closure_data);
@@ -311,13 +932,32 @@ typedef void (*Messages__ClientResponse_Closure)
 
 /* --- descriptors --- */
 
-extern const ProtobufCEnumDescriptor    messages__type__descriptor;
+extern const ProtobufCEnumDescriptor    messages__message_type__descriptor;
+extern const ProtobufCEnumDescriptor    messages__data_type__descriptor;
+extern const ProtobufCEnumDescriptor    messages__error__descriptor;
+extern const ProtobufCMessageDescriptor messages__value__descriptor;
 extern const ProtobufCMessageDescriptor messages__get_request__descriptor;
 extern const ProtobufCMessageDescriptor messages__get_response__descriptor;
 extern const ProtobufCMessageDescriptor messages__put_request__descriptor;
 extern const ProtobufCMessageDescriptor messages__put_response__descriptor;
 extern const ProtobufCMessageDescriptor messages__remove_request__descriptor;
 extern const ProtobufCMessageDescriptor messages__remove_response__descriptor;
+extern const ProtobufCMessageDescriptor messages__init_stack_request__descriptor;
+extern const ProtobufCMessageDescriptor messages__init_stack_response__descriptor;
+extern const ProtobufCMessageDescriptor messages__push_request__descriptor;
+extern const ProtobufCMessageDescriptor messages__push_response__descriptor;
+extern const ProtobufCMessageDescriptor messages__pop_request__descriptor;
+extern const ProtobufCMessageDescriptor messages__pop_response__descriptor;
+extern const ProtobufCMessageDescriptor messages__init_queue_request__descriptor;
+extern const ProtobufCMessageDescriptor messages__init_queue_response__descriptor;
+extern const ProtobufCMessageDescriptor messages__enqueue_request__descriptor;
+extern const ProtobufCMessageDescriptor messages__enqueue_response__descriptor;
+extern const ProtobufCMessageDescriptor messages__dequeue_request__descriptor;
+extern const ProtobufCMessageDescriptor messages__dequeue_response__descriptor;
+extern const ProtobufCMessageDescriptor messages__peek_request__descriptor;
+extern const ProtobufCMessageDescriptor messages__peek_response__descriptor;
+extern const ProtobufCMessageDescriptor messages__size_request__descriptor;
+extern const ProtobufCMessageDescriptor messages__size_response__descriptor;
 extern const ProtobufCMessageDescriptor messages__client_request__descriptor;
 extern const ProtobufCMessageDescriptor messages__client_response__descriptor;
 

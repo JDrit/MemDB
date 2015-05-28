@@ -64,7 +64,7 @@ void dbstore_insert(DBStore* store, char* key, int length, void* data) {
     pthread_mutex_unlock(&store->lock);
 }
 
-DataValue* dbstore_get(DBStore* store, char* key) {
+Messages__Value* dbstore_get(DBStore* store, char* key) {
     pthread_mutex_lock(&store->lock);
     IndexValue* index = index_get(store->index, key);
     if (index == NULL) {
