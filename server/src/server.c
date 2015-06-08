@@ -1,4 +1,5 @@
 #include "server.h"
+#include <protobuf-c-rpc/protobuf-c-rpc.h>
 
 pthread_t tid[MAXNTHREAD];
 pthread_mutex_t m_acc; // lock used to only accept one request at a time
@@ -6,27 +7,21 @@ pthread_mutex_t m_acc; // lock used to only accept one request at a time
 void process_get(Messages__GetResponse *response,
                  Messages__GetRequest *request,
                  DBStore *store) {
-    DataValue* value = dbstore_get(store, request->key);
+    response->error = dbstore_get(store, response->value, request->key);
     response->key = strdup(request->key);
-    if (value != NULL) {
-        response->success = true;
-        response->value = strndup(value->data, value->length);
-        data_value_free(value);
-    }
 }
 
 void process_put(Messages__PutResponse *response,
                  Messages__PutRequest *request,
                  DBStore *store) {
-    dbstore_insert(store, request->key, strlen(request->value), request->value);
+    dbstore_put(store, request->key, request->value);
     response->key = strdup(request->key);
-    response->success = true;
 }
 
 void process_remove(Messages__RemoveResponse *response,
                     Messages__RemoveRequest *request,
                     DBStore *store) {
-   response->success = dbstore_remove(store, request->key);
+   dbstore_remove(store, request->key);
    response->key = strdup(request->key);
 }
 
@@ -65,6 +60,7 @@ void* connection_thread(void* args) {
             else
                 break;
 
+            /*
             Messages__ClientRequest *request = messages__client_request__unpack(NULL, n, recvBuff);
             Messages__ClientResponse response = MESSAGES__CLIENT_RESPONSE__INIT;
             Messages__PutResponse putResponse = MESSAGES__PUT_RESPONSE__INIT;
@@ -127,6 +123,7 @@ void* connection_thread(void* args) {
             } else {
                 log_warn("failed to parse client request\n");
             }
+            */
         }
         close(sockfd);
     }

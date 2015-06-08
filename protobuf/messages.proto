@@ -1,36 +1,20 @@
 package messages;
-
 // Data Type stuff
 
-enum MessageType {
-    GET     = 1;
-    PUT     = 2;
-    REMOVE  = 3;
-    PUSH    = 4;
-    POP     = 5;
-    ENQUEUE = 6;
-    DEQUEUE = 7;
-    PEEK    = 8;
-    SIZE    = 9;
-};
-
-enum DataType {
-    INT         = 1;
-    STRING      = 2;
-}
-
 enum Error {
-    NO_VALUE    = 1;
-    KEY_IN_USE  = 2;
-    WRONG_TYPE  = 3;
-    EMPTY       = 4;
-    WRONG_VALUE = 5;
+    NO_ERROR    = 1;
+    NO_VALUE    = 2;
+    KEY_IN_USE  = 3;
+    WRONG_TYPE  = 4;
+    EMPTY       = 5;
+    WRONG_VALUE = 6;
 }
 
 message Value {
-    required DataType dataType  = 1;
-    optional string stringValue = 2;
-    optional int32 intValue     = 3;
+    oneof value {
+        string stringValue = 1;
+        int32 intValue     = 2;
+    }
 }
 
 // Basis operations
@@ -41,8 +25,10 @@ message GetRequest {
 
 message GetResponse {
     required string key  = 1;
-    optional Value value = 2;
-    optional Error error = 3;
+    oneof result {
+        Value value = 2;
+        Error error = 3;
+    }
 }
 
 message PutRequest {
@@ -91,8 +77,10 @@ message PopRequest {
 
 message PopResponse {
     required string key  = 1;
-    optional Value value = 2;
-    optional Error error = 3;
+    oneof result {
+        Value value = 2;
+        Error error = 3;
+    }
 }
 
 // Queue operations
@@ -122,8 +110,10 @@ message DequeueRequest {
 
 message DequeueResponse {
     required string key  = 1;
-    optional Value value = 2;
-    optional Error error = 3;
+    oneof result {
+        Value value = 2;
+        Error error = 3;
+    }
 }
 
 // Stack + Queue operations
@@ -134,8 +124,10 @@ message PeekRequest {
 
 message PeekResponse {
     required string key  = 1;
-    optional Value value = 2;
-    optional Error error = 3;
+    oneof result {
+        Value value = 2;
+        Error error = 3;
+    }
 }
 
 message SizeRequest {
@@ -144,34 +136,20 @@ message SizeRequest {
 
 message SizeResponse {
     required string key  = 1;
-    optional int32 size  = 2;
-    optional Error error = 3;
+    oneof result {
+        int32 size  = 2;
+        Error error = 3;
+    }
 }
 
-// Main messages
-
-message ClientRequest {
-    required MessageType type       = 1;
-    optional GetRequest get         = 2;
-    optional PutRequest put         = 3;
-    optional RemoveRequest remove   = 4;
-    optional PushRequest push       = 5;
-    optional PopRequest pop         = 6;
-    optional EnqueueRequest enqueue = 7;
-    optional DequeueRequest dequeue = 8;
-    optional PeekRequest peek       = 9;
-    optional SizeRequest size       = 10;
-}
-
-message ClientResponse {
-    required MessageType type        = 1;
-    optional GetResponse get         = 2;
-    optional PutResponse put         = 3;
-    optional RemoveResponse remove   = 4;
-    optional PushResponse push       = 5;
-    optional PopResponse pop         = 6;
-    optional EnqueueResponse enqueue = 7;
-    optional DequeueResponse dequeue = 8;
-    optional PeekResponse peek       = 9;
-    optional SizeResponse size       = 10;
+service DatabaseService {
+    rpc Get     (GetRequest)     returns (GetResponse);
+    rpc Put     (PutRequest)     returns (PutResponse);
+    rpc Remove  (RemoveRequest)  returns (RemoveResponse);
+    rpc Push    (PushRequest)    returns (PushResponse);
+    rpc Pop     (PopRequest)     returns (PopResponse);
+    rpc Enqueue (EnqueueRequest) returns (EnqueueResponse);
+    rpc Dequeue (DequeueRequest) returns (DequeueResponse);
+    rpc Peek    (PeekRequest)    returns (PeekResponse);
+    rpc Size    (SizeRequest)    returns (SizeResponse);
 }

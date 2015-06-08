@@ -44,43 +44,74 @@ bool dbstore_remove(DBStore* store, char* key) {
     return result;
 }
 
-void dbstore_insert(DBStore* store, char* key, int length, void* data) {
+void dbstore_put(DBStore* store, char* key, Messages__Value* value) {
     debug("inserting key %s", key);
-    pthread_mutex_lock(&store->lock);
-    if (store->nextSpot + length > store->dataCapacity) {
-        dbstore_grow(store, length);
-    }
-    IndexValue* dataKey = malloc(sizeof(IndexValue));
-    check_mem(dataKey);
-    dataKey->length = length;
-    dataKey->offset = store->nextSpot;
-    strcpy(dataKey->key, key);
-    index_insert(store->index, dataKey);
 
-    memcpy(store->data + store->nextSpot, data, length);
+    void* data;
+    IndexValue dataKey;
+    switch (value->value_case) {
+        case MESSAGES__VALUE__VALUE_INT_VALUE:
+            log_info("put int value");
+            dataKey.type = DATA_INT;
+            dataKey.length = 4;
+            data = &value->intvalue;
+            break;
+        case MESSAGES__VALUE__VALUE_STRING_VALUE:
+            log_info("put string value");
+            dataKey.type = DATA_STRING;
+            dataKey.length = strlen(value->stringvalue);
+            data = value->stringvalue;
+            break;
+        default:
+            log_warn("could not determine data type %d", value->value_case);
+            return;
+    }
+    pthread_mutex_lock(&store->lock);
+    if (store->nextSpot + dataKey.length > store->dataCapacity) {
+        dbstore_grow(store, dataKey.length);
+    }
+    // finishes making the index key
+    dataKey.offset = store->nextSpot;
+    strcpy(dataKey.key, key);
+
+    index_insert(store->index, &dataKey);
+    // copies the actual data to the store
+    memcpy(store->data + store->nextSpot, data, dataKey.length);
     //check(msync(store->data, store->dataCapacity, MS_SYNC) == -1, "data msync");
-    store->nextSpot += length;
-    free(dataKey);
+    store->nextSpot += dataKey.length;
     pthread_mutex_unlock(&store->lock);
 }
 
-Messages__Value* dbstore_get(DBStore* store, char* key) {
+Messages__Error dbstore_get(DBStore* store, char* key,
+                            Messages__Value* rValue) {
     pthread_mutex_lock(&store->lock);
+    DataValue value;
     IndexValue* index = index_get(store->index, key);
     if (index == NULL) {
         pthread_mutex_unlock(&store->lock);
-        return NULL;
+        return MESSAGES__ERROR__NO_VALUE;
     }
-    DataValue* value = malloc(sizeof(DataValue));
-    check_mem(value);
-    value->length = index->length;
-    value->data = malloc(value->length);
-    check_mem(value->data);
-    memcpy(value->data, store->data + index->offset, index->length);
+    memcpy(value.data, store->data + index->offset, index->length);
     debug("get %s = %.*s", key, value->length, value->data);
+
+    switch (index->type) {
+        case MESSAGES__VALUE__VALUE_STRING_VALUE:
+            log_info("get string value");
+            rValue->value_case = MESSAGES__VALUE__VALUE_STRING_VALUE;
+            rValue->stringvalue = value.data;
+            break;
+        case MESSAGES__VALUE__VALUE_INT_VALUE:
+            log_info("get int value");
+            rValue->value_case = MESSAGES__VALUE__VALUE_INT_VALUE;
+            rValue->intvalue = (int) *value.data;
+            break;
+        default:
+            log_warn("got unknown type %d", index->type);
+            return MESSAGES__ERROR__WRONG_VALUE;
+    }
     free(index);
     pthread_mutex_unlock(&store->lock);
-    return value;
+    return MESSAGES__ERROR__NO_ERROR;
 }
 
 /**

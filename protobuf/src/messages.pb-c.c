@@ -996,140 +996,41 @@ void   messages__size_response__free_unpacked
   assert(message->base.descriptor == &messages__size_response__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
-void   messages__client_request__init
-                     (Messages__ClientRequest         *message)
+static const ProtobufCFieldDescriptor messages__value__field_descriptors[2] =
 {
-  static Messages__ClientRequest init_value = MESSAGES__CLIENT_REQUEST__INIT;
-  *message = init_value;
-}
-size_t messages__client_request__get_packed_size
-                     (const Messages__ClientRequest *message)
-{
-  assert(message->base.descriptor == &messages__client_request__descriptor);
-  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
-}
-size_t messages__client_request__pack
-                     (const Messages__ClientRequest *message,
-                      uint8_t       *out)
-{
-  assert(message->base.descriptor == &messages__client_request__descriptor);
-  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
-}
-size_t messages__client_request__pack_to_buffer
-                     (const Messages__ClientRequest *message,
-                      ProtobufCBuffer *buffer)
-{
-  assert(message->base.descriptor == &messages__client_request__descriptor);
-  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
-}
-Messages__ClientRequest *
-       messages__client_request__unpack
-                     (ProtobufCAllocator  *allocator,
-                      size_t               len,
-                      const uint8_t       *data)
-{
-  return (Messages__ClientRequest *)
-     protobuf_c_message_unpack (&messages__client_request__descriptor,
-                                allocator, len, data);
-}
-void   messages__client_request__free_unpacked
-                     (Messages__ClientRequest *message,
-                      ProtobufCAllocator *allocator)
-{
-  assert(message->base.descriptor == &messages__client_request__descriptor);
-  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
-}
-void   messages__client_response__init
-                     (Messages__ClientResponse         *message)
-{
-  static Messages__ClientResponse init_value = MESSAGES__CLIENT_RESPONSE__INIT;
-  *message = init_value;
-}
-size_t messages__client_response__get_packed_size
-                     (const Messages__ClientResponse *message)
-{
-  assert(message->base.descriptor == &messages__client_response__descriptor);
-  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
-}
-size_t messages__client_response__pack
-                     (const Messages__ClientResponse *message,
-                      uint8_t       *out)
-{
-  assert(message->base.descriptor == &messages__client_response__descriptor);
-  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
-}
-size_t messages__client_response__pack_to_buffer
-                     (const Messages__ClientResponse *message,
-                      ProtobufCBuffer *buffer)
-{
-  assert(message->base.descriptor == &messages__client_response__descriptor);
-  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
-}
-Messages__ClientResponse *
-       messages__client_response__unpack
-                     (ProtobufCAllocator  *allocator,
-                      size_t               len,
-                      const uint8_t       *data)
-{
-  return (Messages__ClientResponse *)
-     protobuf_c_message_unpack (&messages__client_response__descriptor,
-                                allocator, len, data);
-}
-void   messages__client_response__free_unpacked
-                     (Messages__ClientResponse *message,
-                      ProtobufCAllocator *allocator)
-{
-  assert(message->base.descriptor == &messages__client_response__descriptor);
-  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
-}
-static const ProtobufCFieldDescriptor messages__value__field_descriptors[3] =
-{
-  {
-    "dataType",
-    1,
-    PROTOBUF_C_LABEL_REQUIRED,
-    PROTOBUF_C_TYPE_ENUM,
-    0,   /* quantifier_offset */
-    offsetof(Messages__Value, datatype),
-    &messages__data_type__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
   {
     "stringValue",
-    2,
+    1,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_STRING,
-    0,   /* quantifier_offset */
+    offsetof(Messages__Value, value_case),
     offsetof(Messages__Value, stringvalue),
     NULL,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
     "intValue",
-    3,
+    2,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_INT32,
-    offsetof(Messages__Value, has_intvalue),
+    offsetof(Messages__Value, value_case),
     offsetof(Messages__Value, intvalue),
     NULL,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
 };
 static const unsigned messages__value__field_indices_by_name[] = {
-  0,   /* field[0] = dataType */
-  2,   /* field[2] = intValue */
-  1,   /* field[1] = stringValue */
+  1,   /* field[1] = intValue */
+  0,   /* field[0] = stringValue */
 };
 static const ProtobufCIntRange messages__value__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 3 }
+  { 0, 2 }
 };
 const ProtobufCMessageDescriptor messages__value__descriptor =
 {
@@ -1139,7 +1040,7 @@ const ProtobufCMessageDescriptor messages__value__descriptor =
   "Messages__Value",
   "messages",
   sizeof(Messages__Value),
-  3,
+  2,
   messages__value__field_descriptors,
   messages__value__field_indices_by_name,
   1,  messages__value__number_ranges,
@@ -1203,11 +1104,11 @@ static const ProtobufCFieldDescriptor messages__get_response__field_descriptors[
     2,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
+    offsetof(Messages__GetResponse, result_case),
     offsetof(Messages__GetResponse, value),
     &messages__value__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
@@ -1215,11 +1116,11 @@ static const ProtobufCFieldDescriptor messages__get_response__field_descriptors[
     3,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_ENUM,
-    offsetof(Messages__GetResponse, has_error),
+    offsetof(Messages__GetResponse, result_case),
     offsetof(Messages__GetResponse, error),
     &messages__error__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
 };
@@ -1687,11 +1588,11 @@ static const ProtobufCFieldDescriptor messages__pop_response__field_descriptors[
     2,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
+    offsetof(Messages__PopResponse, result_case),
     offsetof(Messages__PopResponse, value),
     &messages__value__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
@@ -1699,11 +1600,11 @@ static const ProtobufCFieldDescriptor messages__pop_response__field_descriptors[
     3,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_ENUM,
-    offsetof(Messages__PopResponse, has_error),
+    offsetof(Messages__PopResponse, result_case),
     offsetof(Messages__PopResponse, error),
     &messages__error__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
 };
@@ -1980,11 +1881,11 @@ static const ProtobufCFieldDescriptor messages__dequeue_response__field_descript
     2,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
+    offsetof(Messages__DequeueResponse, result_case),
     offsetof(Messages__DequeueResponse, value),
     &messages__value__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
@@ -1992,11 +1893,11 @@ static const ProtobufCFieldDescriptor messages__dequeue_response__field_descript
     3,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_ENUM,
-    offsetof(Messages__DequeueResponse, has_error),
+    offsetof(Messages__DequeueResponse, result_case),
     offsetof(Messages__DequeueResponse, error),
     &messages__error__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
 };
@@ -2082,11 +1983,11 @@ static const ProtobufCFieldDescriptor messages__peek_response__field_descriptors
     2,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
+    offsetof(Messages__PeekResponse, result_case),
     offsetof(Messages__PeekResponse, value),
     &messages__value__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
@@ -2094,11 +1995,11 @@ static const ProtobufCFieldDescriptor messages__peek_response__field_descriptors
     3,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_ENUM,
-    offsetof(Messages__PeekResponse, has_error),
+    offsetof(Messages__PeekResponse, result_case),
     offsetof(Messages__PeekResponse, error),
     &messages__error__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
 };
@@ -2184,11 +2085,11 @@ static const ProtobufCFieldDescriptor messages__size_response__field_descriptors
     2,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_INT32,
-    offsetof(Messages__SizeResponse, has_size),
+    offsetof(Messages__SizeResponse, result_case),
     offsetof(Messages__SizeResponse, size),
     NULL,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
@@ -2196,11 +2097,11 @@ static const ProtobufCFieldDescriptor messages__size_response__field_descriptors
     3,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_ENUM,
-    offsetof(Messages__SizeResponse, has_error),
+    offsetof(Messages__SizeResponse, result_case),
     offsetof(Messages__SizeResponse, error),
     &messages__error__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
 };
@@ -2229,404 +2130,26 @@ const ProtobufCMessageDescriptor messages__size_response__descriptor =
   (ProtobufCMessageInit) messages__size_response__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor messages__client_request__field_descriptors[10] =
+static const ProtobufCEnumValue messages__error__enum_values_by_number[6] =
 {
-  {
-    "type",
-    1,
-    PROTOBUF_C_LABEL_REQUIRED,
-    PROTOBUF_C_TYPE_ENUM,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, type),
-    &messages__message_type__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "get",
-    2,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, get),
-    &messages__get_request__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "put",
-    3,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, put),
-    &messages__put_request__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "remove",
-    4,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, remove),
-    &messages__remove_request__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "push",
-    5,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, push),
-    &messages__push_request__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "pop",
-    6,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, pop),
-    &messages__pop_request__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "enqueue",
-    7,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, enqueue),
-    &messages__enqueue_request__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "dequeue",
-    8,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, dequeue),
-    &messages__dequeue_request__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "peek",
-    9,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, peek),
-    &messages__peek_request__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "size",
-    10,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientRequest, size),
-    &messages__size_request__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-};
-static const unsigned messages__client_request__field_indices_by_name[] = {
-  7,   /* field[7] = dequeue */
-  6,   /* field[6] = enqueue */
-  1,   /* field[1] = get */
-  8,   /* field[8] = peek */
-  5,   /* field[5] = pop */
-  4,   /* field[4] = push */
-  2,   /* field[2] = put */
-  3,   /* field[3] = remove */
-  9,   /* field[9] = size */
-  0,   /* field[0] = type */
-};
-static const ProtobufCIntRange messages__client_request__number_ranges[1 + 1] =
-{
-  { 1, 0 },
-  { 0, 10 }
-};
-const ProtobufCMessageDescriptor messages__client_request__descriptor =
-{
-  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
-  "messages.ClientRequest",
-  "ClientRequest",
-  "Messages__ClientRequest",
-  "messages",
-  sizeof(Messages__ClientRequest),
-  10,
-  messages__client_request__field_descriptors,
-  messages__client_request__field_indices_by_name,
-  1,  messages__client_request__number_ranges,
-  (ProtobufCMessageInit) messages__client_request__init,
-  NULL,NULL,NULL    /* reserved[123] */
-};
-static const ProtobufCFieldDescriptor messages__client_response__field_descriptors[10] =
-{
-  {
-    "type",
-    1,
-    PROTOBUF_C_LABEL_REQUIRED,
-    PROTOBUF_C_TYPE_ENUM,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, type),
-    &messages__message_type__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "get",
-    2,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, get),
-    &messages__get_response__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "put",
-    3,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, put),
-    &messages__put_response__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "remove",
-    4,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, remove),
-    &messages__remove_response__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "push",
-    5,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, push),
-    &messages__push_response__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "pop",
-    6,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, pop),
-    &messages__pop_response__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "enqueue",
-    7,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, enqueue),
-    &messages__enqueue_response__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "dequeue",
-    8,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, dequeue),
-    &messages__dequeue_response__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "peek",
-    9,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, peek),
-    &messages__peek_response__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
-    "size",
-    10,
-    PROTOBUF_C_LABEL_OPTIONAL,
-    PROTOBUF_C_TYPE_MESSAGE,
-    0,   /* quantifier_offset */
-    offsetof(Messages__ClientResponse, size),
-    &messages__size_response__descriptor,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-};
-static const unsigned messages__client_response__field_indices_by_name[] = {
-  7,   /* field[7] = dequeue */
-  6,   /* field[6] = enqueue */
-  1,   /* field[1] = get */
-  8,   /* field[8] = peek */
-  5,   /* field[5] = pop */
-  4,   /* field[4] = push */
-  2,   /* field[2] = put */
-  3,   /* field[3] = remove */
-  9,   /* field[9] = size */
-  0,   /* field[0] = type */
-};
-static const ProtobufCIntRange messages__client_response__number_ranges[1 + 1] =
-{
-  { 1, 0 },
-  { 0, 10 }
-};
-const ProtobufCMessageDescriptor messages__client_response__descriptor =
-{
-  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
-  "messages.ClientResponse",
-  "ClientResponse",
-  "Messages__ClientResponse",
-  "messages",
-  sizeof(Messages__ClientResponse),
-  10,
-  messages__client_response__field_descriptors,
-  messages__client_response__field_indices_by_name,
-  1,  messages__client_response__number_ranges,
-  (ProtobufCMessageInit) messages__client_response__init,
-  NULL,NULL,NULL    /* reserved[123] */
-};
-const ProtobufCEnumValue messages__message_type__enum_values_by_number[9] =
-{
-  { "GET", "MESSAGES__MESSAGE_TYPE__GET", 1 },
-  { "PUT", "MESSAGES__MESSAGE_TYPE__PUT", 2 },
-  { "REMOVE", "MESSAGES__MESSAGE_TYPE__REMOVE", 3 },
-  { "PUSH", "MESSAGES__MESSAGE_TYPE__PUSH", 4 },
-  { "POP", "MESSAGES__MESSAGE_TYPE__POP", 5 },
-  { "ENQUEUE", "MESSAGES__MESSAGE_TYPE__ENQUEUE", 6 },
-  { "DEQUEUE", "MESSAGES__MESSAGE_TYPE__DEQUEUE", 7 },
-  { "PEEK", "MESSAGES__MESSAGE_TYPE__PEEK", 8 },
-  { "SIZE", "MESSAGES__MESSAGE_TYPE__SIZE", 9 },
-};
-static const ProtobufCIntRange messages__message_type__value_ranges[] = {
-{1, 0},{0, 9}
-};
-const ProtobufCEnumValueIndex messages__message_type__enum_values_by_name[9] =
-{
-  { "DEQUEUE", 6 },
-  { "ENQUEUE", 5 },
-  { "GET", 0 },
-  { "PEEK", 7 },
-  { "POP", 4 },
-  { "PUSH", 3 },
-  { "PUT", 1 },
-  { "REMOVE", 2 },
-  { "SIZE", 8 },
-};
-const ProtobufCEnumDescriptor messages__message_type__descriptor =
-{
-  PROTOBUF_C__ENUM_DESCRIPTOR_MAGIC,
-  "messages.MessageType",
-  "MessageType",
-  "Messages__MessageType",
-  "messages",
-  9,
-  messages__message_type__enum_values_by_number,
-  9,
-  messages__message_type__enum_values_by_name,
-  1,
-  messages__message_type__value_ranges,
-  NULL,NULL,NULL,NULL   /* reserved[1234] */
-};
-const ProtobufCEnumValue messages__data_type__enum_values_by_number[2] =
-{
-  { "INT", "MESSAGES__DATA_TYPE__INT", 1 },
-  { "STRING", "MESSAGES__DATA_TYPE__STRING", 2 },
-};
-static const ProtobufCIntRange messages__data_type__value_ranges[] = {
-{1, 0},{0, 2}
-};
-const ProtobufCEnumValueIndex messages__data_type__enum_values_by_name[2] =
-{
-  { "INT", 0 },
-  { "STRING", 1 },
-};
-const ProtobufCEnumDescriptor messages__data_type__descriptor =
-{
-  PROTOBUF_C__ENUM_DESCRIPTOR_MAGIC,
-  "messages.DataType",
-  "DataType",
-  "Messages__DataType",
-  "messages",
-  2,
-  messages__data_type__enum_values_by_number,
-  2,
-  messages__data_type__enum_values_by_name,
-  1,
-  messages__data_type__value_ranges,
-  NULL,NULL,NULL,NULL   /* reserved[1234] */
-};
-const ProtobufCEnumValue messages__error__enum_values_by_number[5] =
-{
-  { "NO_VALUE", "MESSAGES__ERROR__NO_VALUE", 1 },
-  { "KEY_IN_USE", "MESSAGES__ERROR__KEY_IN_USE", 2 },
-  { "WRONG_TYPE", "MESSAGES__ERROR__WRONG_TYPE", 3 },
-  { "EMPTY", "MESSAGES__ERROR__EMPTY", 4 },
-  { "WRONG_VALUE", "MESSAGES__ERROR__WRONG_VALUE", 5 },
+  { "NO_ERROR", "MESSAGES__ERROR__NO_ERROR", 1 },
+  { "NO_VALUE", "MESSAGES__ERROR__NO_VALUE", 2 },
+  { "KEY_IN_USE", "MESSAGES__ERROR__KEY_IN_USE", 3 },
+  { "WRONG_TYPE", "MESSAGES__ERROR__WRONG_TYPE", 4 },
+  { "EMPTY", "MESSAGES__ERROR__EMPTY", 5 },
+  { "WRONG_VALUE", "MESSAGES__ERROR__WRONG_VALUE", 6 },
 };
 static const ProtobufCIntRange messages__error__value_ranges[] = {
-{1, 0},{0, 5}
+{1, 0},{0, 6}
 };
-const ProtobufCEnumValueIndex messages__error__enum_values_by_name[5] =
+static const ProtobufCEnumValueIndex messages__error__enum_values_by_name[6] =
 {
-  { "EMPTY", 3 },
-  { "KEY_IN_USE", 1 },
-  { "NO_VALUE", 0 },
-  { "WRONG_TYPE", 2 },
-  { "WRONG_VALUE", 4 },
+  { "EMPTY", 4 },
+  { "KEY_IN_USE", 2 },
+  { "NO_ERROR", 0 },
+  { "NO_VALUE", 1 },
+  { "WRONG_TYPE", 3 },
+  { "WRONG_VALUE", 5 },
 };
 const ProtobufCEnumDescriptor messages__error__descriptor =
 {
@@ -2635,11 +2158,124 @@ const ProtobufCEnumDescriptor messages__error__descriptor =
   "Error",
   "Messages__Error",
   "messages",
-  5,
+  6,
   messages__error__enum_values_by_number,
-  5,
+  6,
   messages__error__enum_values_by_name,
   1,
   messages__error__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };
+static const ProtobufCMethodDescriptor messages__database_service__method_descriptors[9] =
+{
+  { "Get", &messages__get_request__descriptor, &messages__get_response__descriptor },
+  { "Put", &messages__put_request__descriptor, &messages__put_response__descriptor },
+  { "Remove", &messages__remove_request__descriptor, &messages__remove_response__descriptor },
+  { "Push", &messages__push_request__descriptor, &messages__push_response__descriptor },
+  { "Pop", &messages__pop_request__descriptor, &messages__pop_response__descriptor },
+  { "Enqueue", &messages__enqueue_request__descriptor, &messages__enqueue_response__descriptor },
+  { "Dequeue", &messages__dequeue_request__descriptor, &messages__dequeue_response__descriptor },
+  { "Peek", &messages__peek_request__descriptor, &messages__peek_response__descriptor },
+  { "Size", &messages__size_request__descriptor, &messages__size_response__descriptor },
+};
+const unsigned messages__database_service__method_indices_by_name[] = {
+  6,        /* Dequeue */
+  5,        /* Enqueue */
+  0,        /* Get */
+  7,        /* Peek */
+  4,        /* Pop */
+  3,        /* Push */
+  1,        /* Put */
+  2,        /* Remove */
+  8         /* Size */
+};
+const ProtobufCServiceDescriptor messages__database_service__descriptor =
+{
+  PROTOBUF_C__SERVICE_DESCRIPTOR_MAGIC,
+  "messages.DatabaseService",
+  "DatabaseService",
+  "Messages__DatabaseService",
+  "messages",
+  9,
+  messages__database_service__method_descriptors,
+  messages__database_service__method_indices_by_name
+};
+void messages__database_service__get(ProtobufCService *service,
+                                     const Messages__GetRequest *input,
+                                     Messages__GetResponse_Closure closure,
+                                     void *closure_data)
+{
+  assert(service->descriptor == &messages__database_service__descriptor);
+  service->invoke(service, 0, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
+}
+void messages__database_service__put(ProtobufCService *service,
+                                     const Messages__PutRequest *input,
+                                     Messages__PutResponse_Closure closure,
+                                     void *closure_data)
+{
+  assert(service->descriptor == &messages__database_service__descriptor);
+  service->invoke(service, 1, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
+}
+void messages__database_service__remove(ProtobufCService *service,
+                                        const Messages__RemoveRequest *input,
+                                        Messages__RemoveResponse_Closure closure,
+                                        void *closure_data)
+{
+  assert(service->descriptor == &messages__database_service__descriptor);
+  service->invoke(service, 2, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
+}
+void messages__database_service__push(ProtobufCService *service,
+                                      const Messages__PushRequest *input,
+                                      Messages__PushResponse_Closure closure,
+                                      void *closure_data)
+{
+  assert(service->descriptor == &messages__database_service__descriptor);
+  service->invoke(service, 3, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
+}
+void messages__database_service__pop(ProtobufCService *service,
+                                     const Messages__PopRequest *input,
+                                     Messages__PopResponse_Closure closure,
+                                     void *closure_data)
+{
+  assert(service->descriptor == &messages__database_service__descriptor);
+  service->invoke(service, 4, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
+}
+void messages__database_service__enqueue(ProtobufCService *service,
+                                         const Messages__EnqueueRequest *input,
+                                         Messages__EnqueueResponse_Closure closure,
+                                         void *closure_data)
+{
+  assert(service->descriptor == &messages__database_service__descriptor);
+  service->invoke(service, 5, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
+}
+void messages__database_service__dequeue(ProtobufCService *service,
+                                         const Messages__DequeueRequest *input,
+                                         Messages__DequeueResponse_Closure closure,
+                                         void *closure_data)
+{
+  assert(service->descriptor == &messages__database_service__descriptor);
+  service->invoke(service, 6, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
+}
+void messages__database_service__peek(ProtobufCService *service,
+                                      const Messages__PeekRequest *input,
+                                      Messages__PeekResponse_Closure closure,
+                                      void *closure_data)
+{
+  assert(service->descriptor == &messages__database_service__descriptor);
+  service->invoke(service, 7, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
+}
+void messages__database_service__size(ProtobufCService *service,
+                                      const Messages__SizeRequest *input,
+                                      Messages__SizeResponse_Closure closure,
+                                      void *closure_data)
+{
+  assert(service->descriptor == &messages__database_service__descriptor);
+  service->invoke(service, 8, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
+}
+void messages__database_service__init (Messages__DatabaseService_Service *service,
+                                       Messages__DatabaseService_ServiceDestroy destroy)
+{
+  protobuf_c_service_generated_init (&service->base,
+                                     &messages__database_service__descriptor,
+                                     (ProtobufCServiceDestroy) destroy);
+}

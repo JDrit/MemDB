@@ -53,8 +53,39 @@ void process_put(Messages__PutResponse *response,
  * points to the request, response, and database store.
  */
 void process_remove(Messages__RemoveResponse *response,
-                     Messages__RemoveRequest *request,
+                    Messages__RemoveRequest *request,
+                    DBStore *store);
+
+/**
+ * Process a stack pop request and generates the required response. This is
+ * where all errors are generated and logged.
+ */
+void process_push(Messages__PushResponse *response,
+                  Messages__PushRequest *request,
+                  DBStore *store);
+
+/**
+ * Process a stack pop request and generates the required response.
+ */
+void process_pop(Messages__PopResponse *response,
+                 Messages__PopRequest *request,
+                 DBStore *store);
+
+void process_enqueue(Messages__EnqueueResponse *response,
+                     Messages__EnqueueRequest *request,
                      DBStore *store);
+
+void process__dequeue(Messages__DequeueResponse *response,
+                      Messages__DequeueRequest *request,
+                      DBStore *store);
+
+void process_peek(Messages__PeekResponse *response,
+                  Messages__PeekRequest *request,
+                  DBStore *store);
+
+void process_size(Messages__SizeResponse *response,
+                  Messages__SizeRequest *request,
+                  DBStore *store);
 
 /**
  * The function to run in another thread to handle requests.

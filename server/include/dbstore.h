@@ -32,8 +32,11 @@ typedef struct {
     pthread_mutex_t lock;
 } DBStore;
 
+// The raw data is read into this struct. This only holds primitive
+// data types so both top level data values and node data values
+// store individual pieces of data into this store. These structs
+// are then mapped into the mmaped data file.
 typedef struct {
-    unsigned int length;
     char* data;
 } DataValue;
 
@@ -46,10 +49,10 @@ void dbstore_destroy(DBStore* dbstore);
 
 /**
  * Gets the value associated with the key. The data type
- * will be filled in so that the caller knows what type of
- * data it is
+ * will be filled in to the value argument. This allows the
+ * caller knows what type of data it is
  */
-Messages__Value* dbstore_get(DBStore* dbstore, char* key);
+Messages__Error dbstore_get(DBStore* dbstore, char* key, Messages__Value* value);
 
 /**
  * Puts a new value at the location, overriding any previous
@@ -65,23 +68,27 @@ bool dbstore_remove(DBStore* dbstore, char* key);
 
 /**
  * Pushes a new value onto a stack at the given key.
- * Returns:
- * 0 = success
- * 1 = stack does not exist
- * 2 = stack is of wrong type
- * 3 = value associated with key is not a stack
+ * Returns: an error message to be returned to the client
  */
-int dbstore_push(DBStore* dbstore, char* key, Messages__Value* value);
+Messages__Error dbstore_push(DBStore* dbstore, char* key, Messages__Value* value);
 
 /**
  * Pops a new value off of a stack.
- * Returns:
- * 0 = success
- * 1 = stack does not exist
- * 2 = stack is empty
- * 3 = value associated with key is not a stack
+ * Returns: an error message to be returned to the client
  */
-int dbstore_pop(DBStore* dbstore, char* key, Messages__Value* value);
+Messages__Error dbstore_pop(DBStore* dbstore, char* key, Messages__Value* value);
+
+/**
+ * Adds a new element to the queue associated with the given key. This will
+ * return an error if anything goes wrong
+ */
+Messages__Error dbstore_enqueue(DBStore* dbstore, char* key, Messages__Value* value);
+
+Messages__Error dbstore_dequeue(DBStore* dbstore, char* key, Messages__Value* value);
+
+Messages__Error dbstore_peek(DBStore* dbstore, char* key, Messages__Value* value);
+
+Messages__Error dbstore_size(DBStore* dbstore, char* key, Messages__Value* value);
 
 /**
  * Frees all the memory used by a DataValue

@@ -21,22 +21,44 @@
 typedef struct {
     int fd;
     char* filename;
-    char* index;             // mmaped data
-    unsigned long long seed; // seed used for hashing
+    char* index;                      // mmaped data
+    unsigned long long seed;          // seed used for hashing
     unsigned long long capacity;      // the total number of elements possible to be stored
     unsigned long long numFilled;     // current number of elements in the index
 } DBIndex;
 
+// all possible top-level data types
+typedef enum {
+    DATA_INT,
+    DATA_STRING,
+    DATA_STACK,
+    DATA_QUEUE
+} data_type;
+
+// types allowed in a node of a stack or queue
+typedef enum {
+    NODE_INT,
+    NODE_STRING,
+} node_data_type;
+
+// stores the data for a single node of a stack or queue. next is null when
+// this is the end of queue or stack.
+typedef struct node {
+    node_data_type type;
+    unsigned int offset;
+    unsigned int length;
+    struct node* next;
+} node;
+
+// This is the actual struct that is mapped to the on-disk lookup table.
+// If the data type is a primitive, then it is stored at the offset, otherwise
+// the memory for a node is stored at the offset.
 typedef struct {
+    data_type type;
     unsigned int offset;
     unsigned int length;
     char key[KEY_SIZE];
 } IndexValue;
-
-typedef enum {
-    ADD,
-    DELETE
-} index_log_entry_type;
 
 /*
  * Creates the index and populates all of its variables.
