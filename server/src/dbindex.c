@@ -1,7 +1,6 @@
 #include "dbindex.h"
 #include "xxhash.h"
 #include "logging.h"
-#include <glib.h>
 
 static DBIndex* index_resize(DBIndex* index);
 
@@ -140,12 +139,6 @@ IndexValue* index_get(DBIndex* index, char* key) {
  * Generates the index to be used in the mmaped data
  */
 static unsigned long long hash_index(DBIndex* index, char* key) {
-    /*
-    GString* str = g_string_new(key);
-    unsigned long long h = g_string_hash(str);
-    g_string_free(str, false);
-    return h % (index->capacity);
-    */
     unsigned long long hash = XXH64(key, strlen(key), index->seed);
     return hash % (index->capacity);
 }

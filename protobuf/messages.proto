@@ -142,7 +142,7 @@ message SizeResponse {
     }
 }
 
-service DatabaseService {
+service Database {
     rpc Get     (GetRequest)     returns (GetResponse);
     rpc Put     (PutRequest)     returns (PutResponse);
     rpc Remove  (RemoveRequest)  returns (RemoveResponse);

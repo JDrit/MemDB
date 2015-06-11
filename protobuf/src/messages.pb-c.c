@@ -2166,7 +2166,7 @@ const ProtobufCEnumDescriptor messages__error__descriptor =
   messages__error__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };
-static const ProtobufCMethodDescriptor messages__database_service__method_descriptors[9] =
+static const ProtobufCMethodDescriptor messages__database__method_descriptors[9] =
 {
   { "Get", &messages__get_request__descriptor, &messages__get_response__descriptor },
   { "Put", &messages__put_request__descriptor, &messages__put_response__descriptor },
@@ -2178,7 +2178,7 @@ static const ProtobufCMethodDescriptor messages__database_service__method_descri
   { "Peek", &messages__peek_request__descriptor, &messages__peek_response__descriptor },
   { "Size", &messages__size_request__descriptor, &messages__size_response__descriptor },
 };
-const unsigned messages__database_service__method_indices_by_name[] = {
+const unsigned messages__database__method_indices_by_name[] = {
   6,        /* Dequeue */
   5,        /* Enqueue */
   0,        /* Get */
@@ -2189,93 +2189,93 @@ const unsigned messages__database_service__method_indices_by_name[] = {
   2,        /* Remove */
   8         /* Size */
 };
-const ProtobufCServiceDescriptor messages__database_service__descriptor =
+const ProtobufCServiceDescriptor messages__database__descriptor =
 {
   PROTOBUF_C__SERVICE_DESCRIPTOR_MAGIC,
-  "messages.DatabaseService",
-  "DatabaseService",
-  "Messages__DatabaseService",
+  "messages.Database",
+  "Database",
+  "Messages__Database",
   "messages",
   9,
-  messages__database_service__method_descriptors,
-  messages__database_service__method_indices_by_name
+  messages__database__method_descriptors,
+  messages__database__method_indices_by_name
 };
-void messages__database_service__get(ProtobufCService *service,
-                                     const Messages__GetRequest *input,
-                                     Messages__GetResponse_Closure closure,
-                                     void *closure_data)
+void messages__database__get(ProtobufCService *service,
+                             const Messages__GetRequest *input,
+                             Messages__GetResponse_Closure closure,
+                             void *closure_data)
 {
-  assert(service->descriptor == &messages__database_service__descriptor);
+  assert(service->descriptor == &messages__database__descriptor);
   service->invoke(service, 0, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
 }
-void messages__database_service__put(ProtobufCService *service,
-                                     const Messages__PutRequest *input,
-                                     Messages__PutResponse_Closure closure,
-                                     void *closure_data)
+void messages__database__put(ProtobufCService *service,
+                             const Messages__PutRequest *input,
+                             Messages__PutResponse_Closure closure,
+                             void *closure_data)
 {
-  assert(service->descriptor == &messages__database_service__descriptor);
+  assert(service->descriptor == &messages__database__descriptor);
   service->invoke(service, 1, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
 }
-void messages__database_service__remove(ProtobufCService *service,
-                                        const Messages__RemoveRequest *input,
-                                        Messages__RemoveResponse_Closure closure,
-                                        void *closure_data)
+void messages__database__remove(ProtobufCService *service,
+                                const Messages__RemoveRequest *input,
+                                Messages__RemoveResponse_Closure closure,
+                                void *closure_data)
 {
-  assert(service->descriptor == &messages__database_service__descriptor);
+  assert(service->descriptor == &messages__database__descriptor);
   service->invoke(service, 2, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
 }
-void messages__database_service__push(ProtobufCService *service,
-                                      const Messages__PushRequest *input,
-                                      Messages__PushResponse_Closure closure,
-                                      void *closure_data)
+void messages__database__push(ProtobufCService *service,
+                              const Messages__PushRequest *input,
+                              Messages__PushResponse_Closure closure,
+                              void *closure_data)
 {
-  assert(service->descriptor == &messages__database_service__descriptor);
+  assert(service->descriptor == &messages__database__descriptor);
   service->invoke(service, 3, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
 }
-void messages__database_service__pop(ProtobufCService *service,
-                                     const Messages__PopRequest *input,
-                                     Messages__PopResponse_Closure closure,
-                                     void *closure_data)
+void messages__database__pop(ProtobufCService *service,
+                             const Messages__PopRequest *input,
+                             Messages__PopResponse_Closure closure,
+                             void *closure_data)
 {
-  assert(service->descriptor == &messages__database_service__descriptor);
+  assert(service->descriptor == &messages__database__descriptor);
   service->invoke(service, 4, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
 }
-void messages__database_service__enqueue(ProtobufCService *service,
-                                         const Messages__EnqueueRequest *input,
-                                         Messages__EnqueueResponse_Closure closure,
-                                         void *closure_data)
+void messages__database__enqueue(ProtobufCService *service,
+                                 const Messages__EnqueueRequest *input,
+                                 Messages__EnqueueResponse_Closure closure,
+                                 void *closure_data)
 {
-  assert(service->descriptor == &messages__database_service__descriptor);
+  assert(service->descriptor == &messages__database__descriptor);
   service->invoke(service, 5, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
 }
-void messages__database_service__dequeue(ProtobufCService *service,
-                                         const Messages__DequeueRequest *input,
-                                         Messages__DequeueResponse_Closure closure,
-                                         void *closure_data)
+void messages__database__dequeue(ProtobufCService *service,
+                                 const Messages__DequeueRequest *input,
+                                 Messages__DequeueResponse_Closure closure,
+                                 void *closure_data)
 {
-  assert(service->descriptor == &messages__database_service__descriptor);
+  assert(service->descriptor == &messages__database__descriptor);
   service->invoke(service, 6, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
 }
-void messages__database_service__peek(ProtobufCService *service,
-                                      const Messages__PeekRequest *input,
-                                      Messages__PeekResponse_Closure closure,
-                                      void *closure_data)
+void messages__database__peek(ProtobufCService *service,
+                              const Messages__PeekRequest *input,
+                              Messages__PeekResponse_Closure closure,
+                              void *closure_data)
 {
-  assert(service->descriptor == &messages__database_service__descriptor);
+  assert(service->descriptor == &messages__database__descriptor);
   service->invoke(service, 7, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
 }
-void messages__database_service__size(ProtobufCService *service,
-                                      const Messages__SizeRequest *input,
-                                      Messages__SizeResponse_Closure closure,
-                                      void *closure_data)
+void messages__database__size(ProtobufCService *service,
+                              const Messages__SizeRequest *input,
+                              Messages__SizeResponse_Closure closure,
+                              void *closure_data)
 {
-  assert(service->descriptor == &messages__database_service__descriptor);
+  assert(service->descriptor == &messages__database__descriptor);
   service->invoke(service, 8, (const ProtobufCMessage *) input, (ProtobufCClosure) closure, closure_data);
 }
-void messages__database_service__init (Messages__DatabaseService_Service *service,
-                                       Messages__DatabaseService_ServiceDestroy destroy)
+void messages__database__init (Messages__Database_Service *service,
+                               Messages__Database_ServiceDestroy destroy)
 {
   protobuf_c_service_generated_init (&service->base,
-                                     &messages__database_service__descriptor,
+                                     &messages__database__descriptor,
                                      (ProtobufCServiceDestroy) destroy);
 }

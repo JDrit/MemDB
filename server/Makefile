@@ -1,7 +1,7 @@
-CC     := gcc
+CC     := clang
 CFLAGS := -I./include -I../protobuf/include -pg
-CFLAGS += `pkg-config --cflags glib-2.0` `pkg-config --cflags 'libprotobuf-c >= 1.0.0'` -g -Wall -Wextra -std=c11
-LIBS   := `pkg-config --libs glib-2.0` `pkg-config --libs 'libprotobuf-c >= 1.0.0'` -lpthread
+CFLAGS += `pkg-config --cflags libprotobuf-c` `pkg-config --cflags libprotobuf-c-rpc` -g -Wall -Wextra -std=c11
+LIBS   := `pkg-config --libs libprotobuf-c` `pkg-config --libs libprotobuf-c-rpc` -lpthread
 SOURCE := $(wildcard src/*.c ../protobuf/src/*.c)
 
 EXECUTABLE = server

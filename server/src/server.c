@@ -7,7 +7,7 @@ pthread_mutex_t m_acc; // lock used to only accept one request at a time
 void process_get(Messages__GetResponse *response,
                  Messages__GetRequest *request,
                  DBStore *store) {
-    response->error = dbstore_get(store, response->value, request->key);
+    response->error = dbstore_get(store, request->key, response->value);
     response->key = strdup(request->key);
 }
 
@@ -129,6 +129,69 @@ void* connection_thread(void* args) {
     }
 }
 
+static void service__get(Messages__Database_Service *service,
+                         const Messages__GetRequest *request,
+                         Messages__GetResponse_Closure closure,
+                         void *closure_data) {
+
+}
+
+static void service__put(Messages__Database_Service *service,
+                         const Messages__GetRequest *request,
+                         Messages__GetResponse_Closure closure,
+                         void *closure_data) {
+
+}
+
+static void service__remove(Messages__Database_Service *service,
+                            const Messages__RemoveRequest *request,
+                            Messages__RemoveResponse_Closure closure,
+                            void *closure_data) {
+
+}
+
+static void service__push(Messages__Database_Service *service,
+                          const Messages__PushRequest *request,
+                          Messages__PushResponse_Closure closure,
+                          void *closure_data) {
+
+}
+
+static void service__pop(Messages__Database_Service *service,
+                         const Messages__PopRequest *request,
+                         Messages__PopResponse_Closure closure,
+                         void *closure_data) {
+
+}
+
+static void service__enqueue(Messages__Database_Service *service,
+                         const Messages__EnqueueRequest *request,
+                         Messages__EnqueueResponse_Closure closure,
+                         void *closure_data) {
+
+}
+
+static void service__dequeue(Messages__Database_Service *service,
+                         const Messages__DequeueRequest *request,
+                         Messages__DequeueResponse_Closure closure,
+                         void *closure_data) {
+
+}
+
+static void service__peek(Messages__Database_Service *service,
+                         const Messages__PeekRequest *request,
+                         Messages__PeekResponse_Closure closure,
+                         void *closure_data) {
+
+}
+
+static void service__size(Messages__Database_Service *service,
+                         const Messages__SizeRequest *request,
+                         Messages__SizeResponse_Closure closure,
+                         void *closure_data) {
+
+}
+
 int init_sockfd(int port) {
     struct sockaddr_in in_addr;
     int sockfd;
@@ -146,6 +209,8 @@ int init_sockfd(int port) {
     return sockfd;
 }
 
+static Messages__Database_Service service = MESSAGES__DATABASE__INIT(service__);
+
 int main (int argc, char* argv[]) {
     if (argc < 2) {
         printf("usage: %s <port>\n", argv[0]);
@@ -154,6 +219,9 @@ int main (int argc, char* argv[]) {
     check(signal(SIGINT, sig_handler) == SIG_ERR, "could not catch SIGINT");
     DBStore* store = dbstore_init("test.ind", "test.dat");
     int port = atoi(argv[1]);
+
+    ProtobufC_RPC_Server *server;
+    server = protobuf_c_rpc_server_new(PROTOBUF_C_RPC_ADDRESS_TCP, "5050", &service, NULL);
 
     struct thread_params* params = malloc(sizeof(struct thread_params));
     params->sockfd = init_sockfd(port);

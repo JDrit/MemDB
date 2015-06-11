@@ -875,54 +875,54 @@ typedef void (*Messages__SizeResponse_Closure)
 
 /* --- services --- */
 
-typedef struct _Messages__DatabaseService_Service Messages__DatabaseService_Service;
-struct _Messages__DatabaseService_Service
+typedef struct _Messages__Database_Service Messages__Database_Service;
+struct _Messages__Database_Service
 {
   ProtobufCService base;
-  void (*get)(Messages__DatabaseService_Service *service,
+  void (*get)(Messages__Database_Service *service,
               const Messages__GetRequest *input,
               Messages__GetResponse_Closure closure,
               void *closure_data);
-  void (*put)(Messages__DatabaseService_Service *service,
+  void (*put)(Messages__Database_Service *service,
               const Messages__PutRequest *input,
               Messages__PutResponse_Closure closure,
               void *closure_data);
-  void (*remove)(Messages__DatabaseService_Service *service,
+  void (*remove)(Messages__Database_Service *service,
                  const Messages__RemoveRequest *input,
                  Messages__RemoveResponse_Closure closure,
                  void *closure_data);
-  void (*push)(Messages__DatabaseService_Service *service,
+  void (*push)(Messages__Database_Service *service,
                const Messages__PushRequest *input,
                Messages__PushResponse_Closure closure,
                void *closure_data);
-  void (*pop)(Messages__DatabaseService_Service *service,
+  void (*pop)(Messages__Database_Service *service,
               const Messages__PopRequest *input,
               Messages__PopResponse_Closure closure,
               void *closure_data);
-  void (*enqueue)(Messages__DatabaseService_Service *service,
+  void (*enqueue)(Messages__Database_Service *service,
                   const Messages__EnqueueRequest *input,
                   Messages__EnqueueResponse_Closure closure,
                   void *closure_data);
-  void (*dequeue)(Messages__DatabaseService_Service *service,
+  void (*dequeue)(Messages__Database_Service *service,
                   const Messages__DequeueRequest *input,
                   Messages__DequeueResponse_Closure closure,
                   void *closure_data);
-  void (*peek)(Messages__DatabaseService_Service *service,
+  void (*peek)(Messages__Database_Service *service,
                const Messages__PeekRequest *input,
                Messages__PeekResponse_Closure closure,
                void *closure_data);
-  void (*size)(Messages__DatabaseService_Service *service,
+  void (*size)(Messages__Database_Service *service,
                const Messages__SizeRequest *input,
                Messages__SizeResponse_Closure closure,
                void *closure_data);
 };
-typedef void (*Messages__DatabaseService_ServiceDestroy)(Messages__DatabaseService_Service *);
-void messages__database_service__init (Messages__DatabaseService_Service *service,
-                                       Messages__DatabaseService_ServiceDestroy destroy);
-#define MESSAGES__DATABASE_SERVICE__BASE_INIT \
-    { &messages__database_service__descriptor, protobuf_c_service_invoke_internal, NULL }
-#define MESSAGES__DATABASE_SERVICE__INIT(function_prefix__) \
-    { MESSAGES__DATABASE_SERVICE__BASE_INIT,\
+typedef void (*Messages__Database_ServiceDestroy)(Messages__Database_Service *);
+void messages__database__init (Messages__Database_Service *service,
+                               Messages__Database_ServiceDestroy destroy);
+#define MESSAGES__DATABASE__BASE_INIT \
+    { &messages__database__descriptor, protobuf_c_service_invoke_internal, NULL }
+#define MESSAGES__DATABASE__INIT(function_prefix__) \
+    { MESSAGES__DATABASE__BASE_INIT,\
       function_prefix__ ## get,\
       function_prefix__ ## put,\
       function_prefix__ ## remove,\
@@ -932,42 +932,42 @@ void messages__database_service__init (Messages__DatabaseService_Service *servic
       function_prefix__ ## dequeue,\
       function_prefix__ ## peek,\
       function_prefix__ ## size  }
-void messages__database_service__get(ProtobufCService *service,
-                                     const Messages__GetRequest *input,
-                                     Messages__GetResponse_Closure closure,
-                                     void *closure_data);
-void messages__database_service__put(ProtobufCService *service,
-                                     const Messages__PutRequest *input,
-                                     Messages__PutResponse_Closure closure,
-                                     void *closure_data);
-void messages__database_service__remove(ProtobufCService *service,
-                                        const Messages__RemoveRequest *input,
-                                        Messages__RemoveResponse_Closure closure,
-                                        void *closure_data);
-void messages__database_service__push(ProtobufCService *service,
-                                      const Messages__PushRequest *input,
-                                      Messages__PushResponse_Closure closure,
-                                      void *closure_data);
-void messages__database_service__pop(ProtobufCService *service,
-                                     const Messages__PopRequest *input,
-                                     Messages__PopResponse_Closure closure,
-                                     void *closure_data);
-void messages__database_service__enqueue(ProtobufCService *service,
-                                         const Messages__EnqueueRequest *input,
-                                         Messages__EnqueueResponse_Closure closure,
-                                         void *closure_data);
-void messages__database_service__dequeue(ProtobufCService *service,
-                                         const Messages__DequeueRequest *input,
-                                         Messages__DequeueResponse_Closure closure,
-                                         void *closure_data);
-void messages__database_service__peek(ProtobufCService *service,
-                                      const Messages__PeekRequest *input,
-                                      Messages__PeekResponse_Closure closure,
-                                      void *closure_data);
-void messages__database_service__size(ProtobufCService *service,
-                                      const Messages__SizeRequest *input,
-                                      Messages__SizeResponse_Closure closure,
-                                      void *closure_data);
+void messages__database__get(ProtobufCService *service,
+                             const Messages__GetRequest *input,
+                             Messages__GetResponse_Closure closure,
+                             void *closure_data);
+void messages__database__put(ProtobufCService *service,
+                             const Messages__PutRequest *input,
+                             Messages__PutResponse_Closure closure,
+                             void *closure_data);
+void messages__database__remove(ProtobufCService *service,
+                                const Messages__RemoveRequest *input,
+                                Messages__RemoveResponse_Closure closure,
+                                void *closure_data);
+void messages__database__push(ProtobufCService *service,
+                              const Messages__PushRequest *input,
+                              Messages__PushResponse_Closure closure,
+                              void *closure_data);
+void messages__database__pop(ProtobufCService *service,
+                             const Messages__PopRequest *input,
+                             Messages__PopResponse_Closure closure,
+                             void *closure_data);
+void messages__database__enqueue(ProtobufCService *service,
+                                 const Messages__EnqueueRequest *input,
+                                 Messages__EnqueueResponse_Closure closure,
+                                 void *closure_data);
+void messages__database__dequeue(ProtobufCService *service,
+                                 const Messages__DequeueRequest *input,
+                                 Messages__DequeueResponse_Closure closure,
+                                 void *closure_data);
+void messages__database__peek(ProtobufCService *service,
+                              const Messages__PeekRequest *input,
+                              Messages__PeekResponse_Closure closure,
+                              void *closure_data);
+void messages__database__size(ProtobufCService *service,
+                              const Messages__SizeRequest *input,
+                              Messages__SizeResponse_Closure closure,
+                              void *closure_data);
 
 /* --- descriptors --- */
 
@@ -995,7 +995,7 @@ extern const ProtobufCMessageDescriptor messages__peek_request__descriptor;
 extern const ProtobufCMessageDescriptor messages__peek_response__descriptor;
 extern const ProtobufCMessageDescriptor messages__size_request__descriptor;
 extern const ProtobufCMessageDescriptor messages__size_response__descriptor;
-extern const ProtobufCServiceDescriptor messages__database_service__descriptor;
+extern const ProtobufCServiceDescriptor messages__database__descriptor;
 
 PROTOBUF_C__END_DECLS
 
