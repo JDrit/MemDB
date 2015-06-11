@@ -1,5 +1,6 @@
 #include "server.h"
 #include <protobuf-c-rpc/protobuf-c-rpc.h>
+#include <protobuf-c-rpc/protobuf-c-rpc-dispatch.h>
 
 pthread_t tid[MAXNTHREAD];
 pthread_mutex_t m_acc; // lock used to only accept one request at a time
@@ -133,63 +134,63 @@ static void service__get(Messages__Database_Service *service,
                          const Messages__GetRequest *request,
                          Messages__GetResponse_Closure closure,
                          void *closure_data) {
-
+    debug("received get request");
 }
 
 static void service__put(Messages__Database_Service *service,
-                         const Messages__GetRequest *request,
-                         Messages__GetResponse_Closure closure,
+                         const Messages__PutRequest *request,
+                         Messages__PutResponse_Closure closure,
                          void *closure_data) {
-
+    debug("received put request");
 }
 
 static void service__remove(Messages__Database_Service *service,
                             const Messages__RemoveRequest *request,
                             Messages__RemoveResponse_Closure closure,
                             void *closure_data) {
-
+    debug("received remove request");
 }
 
 static void service__push(Messages__Database_Service *service,
                           const Messages__PushRequest *request,
                           Messages__PushResponse_Closure closure,
                           void *closure_data) {
-
+    debug("received push request");
 }
 
 static void service__pop(Messages__Database_Service *service,
                          const Messages__PopRequest *request,
                          Messages__PopResponse_Closure closure,
                          void *closure_data) {
-
+    debug("received pop request");
 }
 
 static void service__enqueue(Messages__Database_Service *service,
                          const Messages__EnqueueRequest *request,
                          Messages__EnqueueResponse_Closure closure,
                          void *closure_data) {
-
+    debug("received enqueue request");
 }
 
 static void service__dequeue(Messages__Database_Service *service,
                          const Messages__DequeueRequest *request,
                          Messages__DequeueResponse_Closure closure,
                          void *closure_data) {
-
+    debug("received dequeue request");
 }
 
 static void service__peek(Messages__Database_Service *service,
                          const Messages__PeekRequest *request,
                          Messages__PeekResponse_Closure closure,
                          void *closure_data) {
-
+    debug("received peek request");
 }
 
 static void service__size(Messages__Database_Service *service,
                          const Messages__SizeRequest *request,
                          Messages__SizeResponse_Closure closure,
                          void *closure_data) {
-
+    debug("received size request");
 }
 
 int init_sockfd(int port) {
@@ -221,8 +222,14 @@ int main (int argc, char* argv[]) {
     int port = atoi(argv[1]);
 
     ProtobufC_RPC_Server *server;
-    server = protobuf_c_rpc_server_new(PROTOBUF_C_RPC_ADDRESS_TCP, "5050", &service, NULL);
+    server = protobuf_c_rpc_server_new(PROTOBUF_C_RPC_ADDRESS_TCP, argv[1], (ProtobufCService*) &service, NULL);
 
+    for (;;) {
+        debug("in main loop...");
+    	protobuf_c_rpc_dispatch_run (protobuf_c_rpc_dispatch_default ());
+    }
+
+    /*
     struct thread_params* params = malloc(sizeof(struct thread_params));
     params->sockfd = init_sockfd(port);
     params->store = store;
@@ -231,5 +238,6 @@ int main (int argc, char* argv[]) {
         pthread_create(&tid[i], 0, connection_thread, (void *) params);
     for (int i = 0 ; i < MAXNTHREAD ; i++)
         pthread_join(tid[i], NULL);
+    */
     return EXIT_SUCCESS;
 }
