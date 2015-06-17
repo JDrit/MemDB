@@ -92,7 +92,6 @@ Messages__Error dbstore_get(DBStore* store, char* key,
         return MESSAGES__ERROR__NO_VALUE;
     }
     memcpy(value.data, store->data + index->offset, index->length);
-    debug("get %s = %.*s", key, value->length, value->data);
 
     switch (index->type) {
         case MESSAGES__VALUE__VALUE_STRING_VALUE:

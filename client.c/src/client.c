@@ -13,7 +13,10 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdbool.h>
+#include <protobuf-c-rpc/protobuf-c-rpc.h>
+#include <protobuf-c-rpc/protobuf-c-rpc-dispatch.h>
 #include "messages.pb-c.h"
+#include "logging.h"
 
 #define handle_error(msg) \
     do { perror(msg); exit(EXIT_FAILURE); } while (0)
@@ -35,6 +38,15 @@ char* gen_random(int len) {
     return s;
 }
 
+static void handle_response(const Messages__GetResponse *response, void *data) {
+    if (response == NULL) {
+        log_warn("error processing request");
+    } else {
+        log_info("response: %s", (char *) response->value);
+    }
+    *(protobuf_c_boolean *) data = 1;
+}
+
 void* client_thread(void *args) {
     int sockfd = 0;
     int n = 0;
@@ -42,6 +54,7 @@ void* client_thread(void *args) {
     struct sockaddr_in serv_addr;
     memset(recvBuff, '0', sizeof(recvBuff));
 
+    /*
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         handle_error("Error: could not create socket");
     }
@@ -50,52 +63,29 @@ void* client_thread(void *args) {
     serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
         handle_error("connect");
+    }*/
+
+
+    ProtobufC_RPC_AddressType address_type = PROTOBUF_C_RPC_ADDRESS_TCP;
+    ProtobufCService *service = protobuf_c_rpc_client_new(address_type, "localhost:5050", &messages__database__descriptor, NULL);
+    ProtobufC_RPC_Client *client = (ProtobufC_RPC_Client *) service;
+    //protobuf_c_rpc_client_set_autoreconnect_period (client, 1000);
+
+    log_info("starting to connect...");
+    while (!protobuf_c_rpc_client_is_connected(client)) {
+    	protobuf_c_rpc_dispatch_run(protobuf_c_rpc_dispatch_default());
+        log_info("connecting...");
+    }
+    log_info("connected");
+
+    Messages__GetRequest request = MESSAGES__GET_REQUEST__INIT;
+    request.key = "jd";
+    protobuf_c_boolean is_done = 0;
+    messages__database__get(service, &request, handle_response, &is_done);
+    while (!is_done) {
+    	protobuf_c_rpc_dispatch_run(protobuf_c_rpc_dispatch_default());
     }
 
-
-    printf("Starting thread\n");
-    Messages__ClientRequest request = MESSAGES__CLIENT_REQUEST__INIT;
-    Messages__PutRequest put = MESSAGES__PUT_REQUEST__INIT;
-    Messages__GetRequest get = MESSAGES__GET_REQUEST__INIT;
-    if (sendGet)
-        request.get = &get;
-    else
-        request.put = &put;
-
-    for (int i = 0 ; i < 5000000 ; i++) {
-        if (sendGet) {
-            request.type = MESSAGES__TYPE__GET;
-            get.key = "this is a test";
-        } else {
-            request.type = MESSAGES__TYPE__PUT;
-            get.key = "this is a test";
-            put.value = alphanum;
-
-        }
-
-        unsigned len = messages__client_request__get_packed_size(&request);
-        void* buf = malloc(len);
-        messages__client_request__pack(&request, buf);
-        write(sockfd, buf, len);
-        n = read(sockfd, recvBuff, sizeof(recvBuff) - 1);
-        if (n > 0)
-            recvBuff[n] = 0;
-        Messages__ClientResponse *response = messages__client_response__unpack(NULL, n, recvBuff);
-        if (response != NULL) {
-            messages__client_response__free_unpacked(response, NULL);
-            pthread_mutex_lock(&m_count);
-            count++;
-            if (count % 10000 == 0) {
-                if (sendGet)
-                    printf("%.2f get requests/sec\n", count / (((double) clock() - start) / CLOCKS_PER_SEC));
-                else
-                    printf("%.2f put requests/sec\n", count / (((double) clock() - start) / CLOCKS_PER_SEC));
-            }
-            pthread_mutex_unlock(&m_count);
-        }
-        free(buf);
-    }
-    printf("finishing\n");
     return NULL;
 }
 

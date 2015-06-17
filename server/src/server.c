@@ -219,9 +219,9 @@ int main (int argc, char* argv[]) {
     }
     check(signal(SIGINT, sig_handler) == SIG_ERR, "could not catch SIGINT");
     DBStore* store = dbstore_init("test.ind", "test.dat");
-    int port = atoi(argv[1]);
 
     ProtobufC_RPC_Server *server;
+    log_info("starting protobuf server");
     server = protobuf_c_rpc_server_new(PROTOBUF_C_RPC_ADDRESS_TCP, argv[1], (ProtobufCService*) &service, NULL);
 
     for (;;) {
